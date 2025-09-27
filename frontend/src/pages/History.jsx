@@ -2,17 +2,22 @@ import { useEffect, useState } from "react";
 import { fetchEvents } from "../services/events";
 import EventItemRow from "../components/EventItem";
 import Filters from "../components/Filters";
+import Pagination from "../components/Pagination";
 
 export default function HistoryPage() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({ type: "all" });
+  const [page, setPage] = useState(1);
+  const limit = 5;
+  const [total, setTotal] = useState(0);
 
   async function load() {
     setLoading(true);
     try {
-      const res = await fetchEvents(filters);
-      setItems(res);
+      const res = await fetchEvents({ ...filters, page, limit });
+      setItems(res.items);
+      setTotal(res.total);
     } finally {
       setLoading(false);
     }
@@ -20,7 +25,7 @@ export default function HistoryPage() {
 
   useEffect(() => {
     load();
-  }, [filters]);
+  }, [filters, page]);
 
   return (
     <div className="container">
@@ -28,7 +33,10 @@ export default function HistoryPage() {
 
       <Filters
         initial={{ type: "all" }}
-        onChange={(v) => setFilters(v)}
+        onChange={(v) => {
+          setFilters(v);
+          setPage(1); // reset page quand on change les filtres
+        }}
       />
 
       <div className="card">
@@ -51,6 +59,13 @@ export default function HistoryPage() {
           </tbody>
         </table>
       </div>
+
+      <Pagination
+        page={page}
+        limit={limit}
+        total={total}
+        onPage={setPage}
+      />
     </div>
   );
 }

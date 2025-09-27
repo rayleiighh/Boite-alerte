@@ -28,7 +28,15 @@ export async function fetchEvents(filters = {}) {
           new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
       );
 
-      resolve(data);
+      // Pagination
+      const page = filters.page || 1;
+      const limit = filters.limit || 5;
+      const startIndex = (page - 1) * limit;
+      const endIndex = startIndex + limit;
+
+      const items = data.slice(startIndex, endIndex);
+
+      resolve({ items, total: data.length });
     }, 500);
   });
 }
