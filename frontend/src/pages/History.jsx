@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
 import { fetchEvents } from "../services/events";
-import type { EventItem } from "../assets/mockEvents";
 import EventItemRow from "../components/EventItem";
 
 export default function HistoryPage() {
-  const [items, setItems] = useState<EventItem[]>([]);
+  const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

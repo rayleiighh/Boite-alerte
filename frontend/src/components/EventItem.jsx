@@ -1,6 +1,4 @@
-import type { EventItem } from "../assets/mockEvents";
-
-export default function EventItemRow({ e }: { e: EventItem }) {
+export default function EventItemRow({ e }) {
   const dt = new Date(e.timestamp);
   const formatted = dt.toLocaleString();
 
