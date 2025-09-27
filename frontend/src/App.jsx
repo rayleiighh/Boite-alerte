@@ -9,12 +9,8 @@
  *
  ***************************************************************************/
 
-function App() {
-  return (
-    <>
-      <p>Weclome to Boite-alerte</p>
-    </>
-  );
-}
+import HistoryPage from "./pages/History";
 
-export default App;
+export default function App() {
+  return <HistoryPage />;
+}

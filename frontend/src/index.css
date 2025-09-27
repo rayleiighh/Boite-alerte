@@ -1,10 +1,30 @@
-/***************************************************************************
- *
- *  Project Title : Boite-alerte
- *  Authors       : Nicolas H, ..., ..., ..., ...
- *  File          : index.css
- *  Description   : Main CSS file for the project
- *  Date          : 27/09/2025
- *  Version       : [1.0.0]
- *
- ***************************************************************************/
+:root {
+  --background: #ffffff;
+  --foreground: #111111;
+  --border: rgba(0, 0, 0, 0.1);
+  --radius: 10px;
+}
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: system-ui, sans-serif;
+}
+
+.container { max-width: 800px; margin: 0 auto; padding: 24px; }
+.h1 { font-size: 20px; font-weight: 600; margin-bottom: 16px; }
+
+.card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+
+.table { width: 100%; border-collapse: collapse; }
+.table th, .table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
