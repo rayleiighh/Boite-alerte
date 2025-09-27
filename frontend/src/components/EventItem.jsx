@@ -4,7 +4,9 @@ export default function EventItemRow({ e }) {
 
   return (
     <tr>
-      <td>{e.type}</td>
+      <td>
+        <span className="badge">{e.type}</span>
+      </td>
       <td>{formatted}</td>
       <td>{e.deviceID}</td>
     </tr>

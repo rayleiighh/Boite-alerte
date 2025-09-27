@@ -82,3 +82,14 @@ body {
   color: var(--foreground);
   opacity: 0.7;
 }
+
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  font-size: 13px;
+  border-radius: 999px; /* pill */
+  background: var(--accent, #e9ebef);
+  border: 1px solid var(--border);
+  font-weight: 500;
+  text-transform: capitalize;
+}
