@@ -1,24 +1,11 @@
 import { useState } from "react";
-import type { EventType } from "../assets/mockEvents";
 
-export interface FiltersValue {
-  type: EventType | "all";
-  dateStart?: string;
-  dateEnd?: string;
-}
+export default function Filters({ initial, onChange }) {
+  const [values, setValues] = useState(initial);
 
-export default function Filters({
-  initial,
-  onChange,
-}: {
-  initial: FiltersValue;
-  onChange: (v: FiltersValue) => void;
-}) {
-  const [v, setV] = useState<FiltersValue>(initial);
-
-  function update<K extends keyof FiltersValue>(key: K, value: FiltersValue[K]) {
-    const next = { ...v, [key]: value };
-    setV(next);
+  function update(key, value) {
+    const next = { ...values, [key]: value };
+    setValues(next);
     onChange(next);
   }
 
@@ -27,8 +14,8 @@ export default function Filters({
       <div className="row" style={{ gap: "8px" }}>
         <select
           className="select"
-          value={v.type}
-          onChange={(e) => update("type", e.target.value as FiltersValue["type"])}
+          value={values.type}
+          onChange={(e) => update("type", e.target.value)}
         >
           <option value="all">Tous les types</option>
           <option value="courrier">Courrier</option>
@@ -39,21 +26,21 @@ export default function Filters({
         <input
           type="date"
           className="input"
-          value={v.dateStart ?? ""}
+          value={values.dateStart || ""}
           onChange={(e) => update("dateStart", e.target.value || undefined)}
         />
 
         <input
           type="date"
           className="input"
-          value={v.dateEnd ?? ""}
+          value={values.dateEnd || ""}
           onChange={(e) => update("dateEnd", e.target.value || undefined)}
         />
 
         <button
           className="button"
           onClick={() => {
-            setV(initial);
+            setValues(initial);
             onChange(initial);
           }}
         >

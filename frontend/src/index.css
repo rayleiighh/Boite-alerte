@@ -28,3 +28,43 @@ body {
   border-bottom: 1px solid var(--border);
   text-align: left;
 }
+
+/* ====== Utilitaires pour la mise en page ====== */
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.select, .input, .button {
+  height: 38px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--foreground);
+  padding: 0 12px;
+  font-size: 14px;
+}
+
+.select {
+  min-width: 150px;
+}
+
+.input[type="date"] {
+  min-width: 160px;
+}
+
+.button {
+  background: var(--accent, #e9ebef);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.button:hover {
+  background: #dcdfe3;
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
