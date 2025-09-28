@@ -9,12 +9,15 @@
  *
  ***************************************************************************/
 
-function App() {
+import Notifications from "./pages/Notifications.jsx";
+
+export default function App() {
   return (
-    <>
-      <p>Weclome to Boite-alerte</p>
-    </>
+    <div style={{ minHeight: "100vh", background: "#f6f7fb" }}>
+      <div style={{ maxWidth: 1120, margin: "0 auto" }}>
+        <Notifications />
+      </div>
+    </div>
   );
 }
 
-export default App;
