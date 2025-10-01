@@ -12,6 +12,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 const connectDB = require("./config/db");
 const eventRoutes = require("./routes/eventRoutes"); // ✅ nouveau
+const cors = require("cors");
 
 dotenv.config();
 
@@ -22,6 +23,13 @@ app.use(express.json());
 
 // Connexion DB
 connectDB();
+
+// CORS
+app.use(cors({
+  origin: "http://localhost:5173", // autorise ton frontend
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type"]
+}));
 
 // Route test
 app.get("/", (req, res) => {

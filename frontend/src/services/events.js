@@ -1,42 +1,30 @@
-import { mockEvents } from "../assets/mockEvents";
+import axios from "axios";
 
+const API = axios.create({
+  baseURL: "http://localhost:5000/api", // backend local
+});
+
+// Récupérer les events avec pagination & filtres
 export async function fetchEvents(filters = {}) {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      let data = [...mockEvents];
+  const params = {
+    page: filters.page || 1,
+    limit: filters.limit || 5,
+  };
 
-      // Filtre type
-      if (filters.type && filters.type !== "all") {
-        data = data.filter((e) => e.type === filters.type);
-      }
+  if (filters.type && filters.type !== "all") {
+    params.type = filters.type;
+  }
+  if (filters.dateStart) {
+    params.startDate = filters.dateStart;
+  }
+  if (filters.dateEnd) {
+    params.endDate = filters.dateEnd;
+  }
 
-      // Filtre date début
-      if (filters.dateStart) {
-        const start = new Date(filters.dateStart + "T00:00:00");
-        data = data.filter((e) => new Date(e.timestamp) >= start);
-      }
-
-      // Filtre date fin
-      if (filters.dateEnd) {
-        const end = new Date(filters.dateEnd + "T23:59:59");
-        data = data.filter((e) => new Date(e.timestamp) <= end);
-      }
-
-      // Tri décroissant
-      data.sort(
-        (a, b) =>
-          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-      );
-
-      // Pagination
-      const page = filters.page || 1;
-      const limit = filters.limit || 5;
-      const startIndex = (page - 1) * limit;
-      const endIndex = startIndex + limit;
-
-      const items = data.slice(startIndex, endIndex);
-
-      resolve({ items, total: data.length });
-    }, 500);
-  });
+  const res = await API.get("/events", { params });
+  console.log("API response:", res.data);
+  return {
+    items: res.data.events,  // backend renvoie { events, total, totalPages }
+    total: res.data.total,
+  };
 }
