@@ -1,3 +1,4 @@
+@import "./globals.css";  
 /***************************************************************************
  *
  *  Project Title : Boite-alerte
@@ -8,3 +9,16 @@
  *  Version       : [1.0.0]
  *
  ***************************************************************************/
+      /* 1ère ligne, rien au-dessus */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; }
+body { font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+@layer base {
+  html, body { overflow-x: hidden; }  /* empêche tout débordement horizontal global */
+}

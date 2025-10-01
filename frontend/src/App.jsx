@@ -2,7 +2,7 @@
  *
  *  Project Title : Boite-alerte
  *  Authors       : Nicolas H, ..., ..., ..., ...
- *  File          : app.jsx
+ *  File          : App.jsx
  *  Description   : Main App component
  *  Date          : 27/09/2025
  *  Version       : [1.0.0]
@@ -20,4 +20,3 @@ export default function App() {
     </div>
   );
 }
-
