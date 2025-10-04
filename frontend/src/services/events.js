@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "http://localhost:5000/api", // backend local
+  baseURL: import.meta.env.VITE_API_URL, // backend local
 });
 
 // Récupérer les events avec pagination & filtres

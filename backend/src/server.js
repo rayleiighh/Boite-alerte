@@ -26,7 +26,7 @@ connectDB();
 
 // CORS
 app.use(cors({
-  origin: "http://localhost:5173", // autorise ton frontend
+  origin: process.env.FRONTEND_URL, // autorise ton frontend
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type"]
 }));
@@ -40,6 +40,6 @@ app.get("/", (req, res) => {
 app.use("/api/events", eventRoutes); // ✅ nouveau
 
 // Lancement serveur
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`🚀 Serveur lancé sur le port ${PORT}`));
 
