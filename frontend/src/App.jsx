@@ -12,7 +12,7 @@
 import { useState } from "react";
 import { SideNavigation } from "./components/SideNavigation";
 import { BottomNavigation } from "./components/BottomNavigation";
-import Dashboard from "./pages/Dashboard";
+import { Dashboard } from "./pages/Dashboard";
 import Notifications from "./pages/Notifications";
 import Messages from "./pages/Messages";
 import HistoryPage from "./pages/History";
