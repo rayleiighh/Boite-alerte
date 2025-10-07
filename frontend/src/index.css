@@ -1,3 +1,4 @@
+@import "./globals.css";  
 
 /***************************************************************************
  *
@@ -14,6 +15,19 @@
 @tailwind components;
 @tailwind utilities;
 
+/* === Global reset et comportement === */
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; margin: 0; padding: 0; }
+body { 
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; 
+  background: var(--background, #ffffff);
+  color: var(--foreground, #111111);
+}
+@layer base {
+  html, body { overflow-x: hidden; }
+}
+
+/* === Variables globales === */
 :root {
   --background: #ffffff;
   --foreground: #111111;
@@ -21,16 +35,11 @@
   --radius: 10px;
 }
 
-body {
-  margin: 0;
-  background: var(--background);
-  color: var(--foreground);
-  font-family: system-ui, sans-serif;
-}
-
+/* === Layout de base === */
 .container { max-width: 800px; margin: 0 auto; padding: 24px; }
 .h1 { font-size: 20px; font-weight: 600; margin-bottom: 16px; }
 
+/* === Composants === */
 .card {
   background: white;
   border: 1px solid var(--border);
@@ -45,7 +54,7 @@ body {
   text-align: left;
 }
 
-/* ====== Utilitaires pour la mise en page ====== */
+/* === Utilitaires === */
 .row {
   display: flex;
   align-items: center;
@@ -62,34 +71,18 @@ body {
   font-size: 14px;
 }
 
-.select {
-  min-width: 150px;
-}
-
-.input[type="date"] {
-  min-width: 160px;
-}
+.select { min-width: 150px; }
+.input[type="date"] { min-width: 160px; }
 
 .button {
   background: var(--accent, #e9ebef);
   cursor: pointer;
   transition: background 0.2s;
 }
+.button:hover { background: #dcdfe3; }
+.button:disabled { opacity: 0.6; cursor: not-allowed; }
 
-.button:hover {
-  background: #dcdfe3;
-}
-
-.button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.spread {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+.spread { display: flex; justify-content: space-between; align-items: center; }
 
 .mt-16 { margin-top: 16px; }
 

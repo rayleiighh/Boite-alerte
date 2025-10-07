@@ -2,7 +2,7 @@
  *
  *  Project Title : Boite-alerte
  *  Authors       : Nicolas H, Rayane B, ..., ..., ...
- *  File          : app.jsx
+ *  File          : App.jsx
  *  Description   : Main App component
  *  Date          : 27/09/2025
  *  Version       : [1.0.0]
@@ -13,11 +13,11 @@ import { useState } from "react";
 import { SideNavigation } from "./components/SideNavigation";
 import { BottomNavigation } from "./components/BottomNavigation";
 import { Dashboard } from "./pages/Dashboard";
-import Notifications from "./pages/Notifications";
+import Notifications from "./pages/Notifications"; // ✅ garde le composant de feature/Notification
 import Messages from "./pages/Messages";
 import HistoryPage from "./pages/History";
 
-// Mock notifications
+// ✅ Mock temporaire
 const mockNotifications = [
   { id: "1", isNew: true },
   { id: "2", isNew: true },
@@ -36,7 +36,13 @@ export default function App() {
       case "dashboard":
         return <Dashboard />;
       case "notifications":
-        return <Notifications />;
+        return (
+          <div style={{ minHeight: "100vh", background: "#f6f7fb" }}>
+            <div style={{ maxWidth: 1120, margin: "0 auto" }}>
+              <Notifications />
+            </div>
+          </div>
+        );
       case "messages":
         return <Messages />;
       case "history":
