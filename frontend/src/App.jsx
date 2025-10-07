@@ -1,7 +1,7 @@
 /***************************************************************************
  *
  *  Project Title : Boite-alerte
- *  Authors       : Nicolas H, ..., ..., ..., ...
+ *  Authors       : Nicolas H, Rayane B, ..., ..., ...
  *  File          : app.jsx
  *  Description   : Main App component
  *  Date          : 27/09/2025
@@ -15,6 +15,7 @@ import { BottomNavigation } from "./components/BottomNavigation";
 import Dashboard from "./pages/Dashboard";
 import Notifications from "./pages/Notifications";
 import Messages from "./pages/Messages";
+import HistoryPage from "./pages/History";
 
 // Mock notifications
 const mockNotifications = [
@@ -38,6 +39,8 @@ export default function App() {
         return <Notifications />;
       case "messages":
         return <Messages />;
+      case "history":
+        return <HistoryPage />;
       default:
         return null;
     }

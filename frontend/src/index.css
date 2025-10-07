@@ -1,7 +1,8 @@
+
 /***************************************************************************
  *
  *  Project Title : Boite-alerte
- *  Authors       : Nicolas H, ..., ..., ..., ...
+ *  Authors       : Nicolas H, Rayane B, ..., ..., ...
  *  File          : index.css
  *  Description   : Main CSS file for the project
  *  Date          : 27/09/2025
@@ -12,3 +13,99 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #111111;
+  --border: rgba(0, 0, 0, 0.1);
+  --radius: 10px;
+}
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: system-ui, sans-serif;
+}
+
+.container { max-width: 800px; margin: 0 auto; padding: 24px; }
+.h1 { font-size: 20px; font-weight: 600; margin-bottom: 16px; }
+
+.card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+
+.table { width: 100%; border-collapse: collapse; }
+.table th, .table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+
+/* ====== Utilitaires pour la mise en page ====== */
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.select, .input, .button {
+  height: 38px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--foreground);
+  padding: 0 12px;
+  font-size: 14px;
+}
+
+.select {
+  min-width: 150px;
+}
+
+.input[type="date"] {
+  min-width: 160px;
+}
+
+.button {
+  background: var(--accent, #e9ebef);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.button:hover {
+  background: #dcdfe3;
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.spread {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mt-16 { margin-top: 16px; }
+
+.subtle {
+  font-size: 14px;
+  color: var(--foreground);
+  opacity: 0.7;
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  font-size: 13px;
+  border-radius: 999px; /* pill */
+  background: var(--accent, #e9ebef);
+  border: 1px solid var(--border);
+  font-weight: 500;
+  text-transform: capitalize;
+}
