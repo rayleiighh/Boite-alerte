@@ -15,6 +15,7 @@ import { BottomNavigation } from "./components/BottomNavigation";
 import Dashboard from "./pages/Dashboard";
 import Notifications from "./pages/Notifications";
 import Messages from "./pages/Messages";
+import Login from "./pages/Login";
 
 // Mock notifications
 const mockNotifications = [
@@ -25,8 +26,9 @@ const mockNotifications = [
 ];
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState("dashboard");
   const [notifications] = useState(mockNotifications);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [activeTab, setActiveTab] = useState("dashboard"); // ✅ ajouté
 
   const newNotificationsCount = notifications.filter((n) => n.isNew).length;
 
@@ -43,6 +45,12 @@ export default function App() {
     }
   };
 
+  // ✅ Si l'utilisateur n'est pas connecté, afficher la page Login
+  if (!isLoggedIn) {
+    return <Login onLoginSuccess={() => setIsLoggedIn(true)} />;
+  }
+
+  // ✅ Si connecté, afficher la structure principale
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
       {/* Desktop Layout */}
