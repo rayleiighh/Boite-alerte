@@ -1,28 +1,45 @@
 /***************************************************************************
  *  Boite-alerte - Backend
- *  ENTRYPOINT : src/routes/server.js (oui, dans routes)
+ *  ENTRYPOINT : src/routes/server.js
  ***************************************************************************/
 
 import express from "express";
 import cors from "cors";
+import dotenv from "dotenv";
 import { WebSocketServer } from "ws";
+import connectDB from "./config/db.js";
+import eventRoutes from "./routes/eventRoutes.js";
+
+dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 5001;
 
-// Middleware
-app.use(cors({ origin: "http://localhost:5173" }));
+// --- Connexion DB ---
+connectDB();
+
+// --- Middleware ---
 app.use(express.json());
+app.use(cors({
+  origin: process.env.FRONTEND_URL || "http://localhost:5173",
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type"],
+}));
 
-// --- Données en mémoire pour démo (remplacer plus tard par DB) ---
+// --- Routes principales ---
+app.get("/", (req, res) => {
+  res.send("🚀 Backend Boite'Alerte fonctionne !");
+});
+
+app.use("/api/events", eventRoutes);
+
+// --- Notifications (données temporaires) ---
 let notifications = [
-  { id: "1", type: "mail",    title: "Nouvelle lettre reçue", description: "Courrier standard déposé dans la boîte aux lettres", time: "14h32", isNew: true },
-  { id: "2", type: "package", title: "Colis détecté",         description: "Colis de taille moyenne en attente de récupération", time: "12h15", isNew: true },
-  { id: "3", type: "mail",    title: "Courrier collecté",     description: "Le courrier a été récupéré avec succès",            time: "Hier 16h45", isNew: false },
-  { id: "4", type: "alert",   title: "Boîte aux lettres pleine", description: "Veuillez vider la boîte aux lettres",           time: "Hier 14h20", isNew: false }
+  { id: "1", type: "mail", title: "Nouvelle lettre reçue", description: "Courrier standard déposé dans la boîte aux lettres", time: "14h32", isNew: true },
+  { id: "2", type: "package", title: "Colis détecté", description: "Colis de taille moyenne en attente de récupération", time: "12h15", isNew: true },
 ];
 
-// --- Routes REST ---
+// --- Routes notifications ---
 app.get("/api/notifications", (req, res) => res.json(notifications));
 
 app.post("/api/notifications/mark-all-read", (req, res) => {
@@ -42,15 +59,14 @@ app.delete("/api/notifications/:id", (req, res) => {
   res.sendStatus(204);
 });
 
-// --- Démarrage HTTP ---
+// --- Lancement HTTP ---
 const server = app.listen(PORT, () => {
-  console.log(`API running on http://localhost:${PORT}`);
+  console.log(`🚀 Serveur lancé sur le port ${PORT}`);
 });
 
-// --- WebSocket `/ws` ---
+// --- WebSocket ---
 const wss = new WebSocketServer({ server, path: "/ws" });
 wss.on("connection", (ws) => {
-  // message de bienvenue
   const now = new Date();
   const welcome = {
     id: String(now.getTime()),
@@ -63,7 +79,7 @@ wss.on("connection", (ws) => {
   try { ws.send(JSON.stringify(welcome)); } catch {}
 });
 
-// demo: broadcast toutes 30s
+// Broadcast de démo toutes les 30s
 setInterval(() => {
   const now = new Date();
   const msg = {

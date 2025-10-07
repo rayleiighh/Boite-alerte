@@ -2,6 +2,7 @@
   "name": "backend",
   "version": "1.0.0",
   "type": "module",
+  "description": "",
   "main": "src/server.js",
   "scripts": {
     "dev": "nodemon src/server.js",
@@ -9,7 +10,9 @@
   },
   "dependencies": {
     "cors": "^2.8.5",
-    "express": "^4.19.2",
+    "dotenv": "^17.2.2",
+    "express": "^5.1.0",
+    "mongoose": "^8.18.3",
     "ws": "^8.18.0"
   },
   "devDependencies": {

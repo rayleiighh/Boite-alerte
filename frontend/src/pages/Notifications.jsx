@@ -46,12 +46,12 @@ export default function Notifications() {
   const [socketStatus, setSocketStatus] = useState("connecting");
   const subRef = useRef(null);
 
-  // Load initial
+  // Chargement initial
   useEffect(() => {
     (async () => setItems(await getNotifications()))();
   }, []);
 
-  // Realtime
+  // WebSocket temps réel
   useEffect(() => {
     const sub = subscribeRealtime({
       onOpen: () => setSocketStatus("open"),
@@ -98,7 +98,7 @@ export default function Notifications() {
 
   return (
     <section className="notif-page">
-      {/* header */}
+      {/* Header */}
       <div className="notif-head">
         <div>
           <h1>Notifications</h1>
@@ -111,7 +111,7 @@ export default function Notifications() {
         </div>
       </div>
 
-      {/* toolbar */}
+      {/* Toolbar */}
       <div className="notif-toolbar">
         <div className="search">
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Rechercher… (titre, type, heure)" />
@@ -134,7 +134,7 @@ export default function Notifications() {
         </div>
       </div>
 
-      {/* list */}
+      {/* Liste */}
       <div className="notif-grid">
         {filtered.length === 0 ? (
           <div className="empty">
