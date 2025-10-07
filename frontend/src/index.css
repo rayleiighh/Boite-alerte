@@ -1,3 +1,19 @@
+
+/***************************************************************************
+ *
+ *  Project Title : Boite-alerte
+ *  Authors       : Nicolas H, Rayane B, ..., ..., ...
+ *  File          : index.css
+ *  Description   : Main CSS file for the project
+ *  Date          : 27/09/2025
+ *  Version       : [1.0.0]
+ *
+ ***************************************************************************/
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
   --background: #ffffff;
   --foreground: #111111;
