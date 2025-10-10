@@ -1,4 +1,3 @@
-// Dans Login.jsx
 import { useState } from "react";
 
 export default function Login({ onLoginSuccess }) {
@@ -14,7 +13,7 @@ export default function Login({ onLoginSuccess }) {
     const ADMIN_PASSWORD = "1234";
 
     if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-      onLoginSuccess(); // par ex. rediriger vers Dashboard
+      onLoginSuccess(); // rediriger vers Dashboard
     } else {
       setError("Identifiants incorrects");
     }
