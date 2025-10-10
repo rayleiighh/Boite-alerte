@@ -1,6 +1,4 @@
-// Bottom navigation for phone
-
-import { Home, Bell, MessageSquare } from "lucide-react";
+import { Home, Bell, MessageSquare, Clock } from "lucide-react";
 import { motion } from "framer-motion";
 
 export function BottomNavigation({
@@ -9,22 +7,15 @@ export function BottomNavigation({
   notificationCount = 0,
 }) {
   const tabs = [
-    {
-      id: "dashboard",
-      icon: Home,
-      label: "Dashboard",
-    },
+    { id: "dashboard", icon: Home, label: "Dashboard" },
     {
       id: "notifications",
       icon: Bell,
       label: "Notifications",
       badge: notificationCount,
     },
-    {
-      id: "messages",
-      icon: MessageSquare,
-      label: "Messages",
-    },
+    { id: "messages", icon: MessageSquare, label: "Messages" },
+    { id: "history", icon: Clock, label: "History" },
   ];
 
   return (
@@ -53,9 +44,7 @@ export function BottomNavigation({
                 {tab.badge && tab.badge > 0 && (
                   <motion.div
                     className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full flex items-center justify-center text-xs"
-                    animate={{
-                      scale: [1, 1.2, 1],
-                    }}
+                    animate={{ scale: [1, 1.2, 1] }}
                     transition={{
                       duration: 1,
                       repeat: Infinity,
