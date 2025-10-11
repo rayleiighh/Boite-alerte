@@ -12,8 +12,8 @@
 import { useState } from "react";
 import { SideNavigation } from "./components/SideNavigation";
 import { BottomNavigation } from "./components/BottomNavigation";
-import { Dashboard } from "./pages/Dashboard";
-import Notifications from "./pages/Notifications"; // ✅ garde le composant de feature/Notification
+import { DashboardContainer } from "./pages/DashboardContainer";
+import Notifications from "./pages/Notifications";
 import Messages from "./pages/Messages";
 import HistoryPage from "./pages/History";
 
@@ -34,7 +34,7 @@ export default function App() {
   const renderActivePage = () => {
     switch (activeTab) {
       case "dashboard":
-        return <Dashboard />;
+        return <DashboardContainer />;
       case "notifications":
         return (
           <div style={{ minHeight: "100vh", background: "#f6f7fb" }}>

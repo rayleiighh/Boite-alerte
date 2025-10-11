@@ -9,7 +9,6 @@ import { Button } from "../components/button";
 import { Card } from "../components/card";
 import { Badge } from "../components/badge";
 import { motion } from "framer-motion";
-import { ImageWithFallback } from "../components/ImageWithFallback";
 
 export function Dashboard({ mailboxStatus, lastActivity, onViewDetails }) {
   const getStatusInfo = () => {
@@ -97,21 +96,6 @@ export function Dashboard({ mailboxStatus, lastActivity, onViewDetails }) {
         transition={{ duration: 0.3 }}
       >
         <Card className="p-8 lg:p-12 bg-gradient-to-br from-white via-slate-50/50 to-blue-50/30 backdrop-blur-sm border-0 shadow-xl shadow-slate-200/20">
-          {mailboxStatus === "empty" && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="mb-6"
-            >
-              <ImageWithFallback
-                src="https://images.unsplash.com/photo-1527377667-83c6c76f963f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjBtYWlsYm94JTIwbWluaW1hbGlzdHxlbnwxfHx8fDE3NTg5NzQxMzB8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-                alt="Boîte aux lettres moderne"
-                className="w-32 h-24 object-cover rounded-xl mx-auto opacity-60 grayscale"
-              />
-            </motion.div>
-          )}
-
           <div className="text-center space-y-4">
             <motion.div
               className={`w-20 h-20 rounded-full ${statusInfo.color} flex items-center justify-center mx-auto relative shadow-lg`}
@@ -235,61 +219,6 @@ export function Dashboard({ mailboxStatus, lastActivity, onViewDetails }) {
             Consulter le détail
           </Button>
         </motion.div>
-
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          <motion.div
-            whileHover={{ scale: 1.02, y: -1 }}
-            whileTap={{ scale: 0.98 }}
-            transition={{ type: "spring", stiffness: 400, damping: 17 }}
-          >
-            <Button
-              variant="outline"
-              className="h-12 w-full bg-white/50 backdrop-blur-sm border-slate-200/50 shadow-sm hover:bg-white/80 hover:shadow-md transition-all"
-            >
-              <Mail className="w-4 h-4 mr-2" />
-              Courrier
-            </Button>
-          </motion.div>
-          <motion.div
-            whileHover={{ scale: 1.02, y: -1 }}
-            whileTap={{ scale: 0.98 }}
-            transition={{ type: "spring", stiffness: 400, damping: 17 }}
-          >
-            <Button
-              variant="outline"
-              className="h-12 w-full bg-white/50 backdrop-blur-sm border-slate-200/50 shadow-sm hover:bg-white/80 hover:shadow-md transition-all"
-            >
-              <Package className="w-4 h-4 mr-2" />
-              Colis
-            </Button>
-          </motion.div>
-          <motion.div
-            className="lg:block hidden"
-            whileHover={{ scale: 1.02, y: -1 }}
-            whileTap={{ scale: 0.98 }}
-            transition={{ type: "spring", stiffness: 400, damping: 17 }}
-          >
-            <Button
-              variant="outline"
-              className="h-12 w-full bg-white/50 backdrop-blur-sm border-slate-200/50 shadow-sm hover:bg-white/80 hover:shadow-md transition-all"
-            >
-              Historique
-            </Button>
-          </motion.div>
-          <motion.div
-            className="lg:block hidden"
-            whileHover={{ scale: 1.02, y: -1 }}
-            whileTap={{ scale: 0.98 }}
-            transition={{ type: "spring", stiffness: 400, damping: 17 }}
-          >
-            <Button
-              variant="outline"
-              className="h-12 w-full bg-white/50 backdrop-blur-sm border-slate-200/50 shadow-sm hover:bg-white/80 hover:shadow-md transition-all"
-            >
-              Paramètres
-            </Button>
-          </motion.div>
-        </div>
       </motion.div>
 
       {/* Last Activity & Stats */}
