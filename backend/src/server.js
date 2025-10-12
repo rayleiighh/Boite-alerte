@@ -10,26 +10,26 @@
 
 const express = require("express");
 const dotenv = require("dotenv");
-const connectDB = require("./config/db");
-const eventRoutes = require("./routes/eventRoutes"); // ✅ nouveau
 const cors = require("cors");
+const connectDB = require("./config/db");
+const eventRoutes = require("./routes/eventRoutes");
+const notificationRoutes = require("./routes/notificationRoutes");
 
 dotenv.config();
 
 const app = express();
 
-// Middleware
+// Middlewares (AVANT tout le reste)
 app.use(express.json());
+app.use(cors({
+  origin: process.env.FRONTEND_URL || "http://localhost:5173",
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type"],
+  credentials: true
+}));
 
 // Connexion DB
 connectDB();
-
-// CORS
-app.use(cors({
-  origin: process.env.FRONTEND_URL, // autorise ton frontend
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type"]
-}));
 
 // Route test
 app.get("/", (req, res) => {
@@ -37,7 +37,8 @@ app.get("/", (req, res) => {
 });
 
 // Routes API
-app.use("/api/events", eventRoutes); // ✅ nouveau
+app.use("/api/events", eventRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 // Lancement serveur
 const PORT = process.env.PORT || 5001;

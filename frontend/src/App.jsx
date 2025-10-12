@@ -1,7 +1,7 @@
 /***************************************************************************
  *
  *  Project Title : Boite-alerte
- *  Authors       : Nicolas H, Rayane B, ..., ..., ...
+ *  Authors       : Nicolas H, Rayane B, Saad Z, ..., ...
  *  File          : App.jsx
  *  Description   : Main App component
  *  Date          : 27/09/2025
