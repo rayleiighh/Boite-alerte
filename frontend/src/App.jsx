@@ -13,11 +13,11 @@ import { useState } from "react";
 import { SideNavigation } from "./components/SideNavigation";
 import { BottomNavigation } from "./components/BottomNavigation";
 import { Dashboard } from "./pages/Dashboard";
-import Notifications from "./pages/Notifications"; // ✅ garde le composant de feature/Notification
+import Notifications from "./pages/Notifications";
 import Messages from "./pages/Messages";
 import HistoryPage from "./pages/History";
 
-// ✅ Mock temporaire
+// Mock temporaire
 const mockNotifications = [
   { id: "1", isNew: true },
   { id: "2", isNew: true },
@@ -36,13 +36,7 @@ export default function App() {
       case "dashboard":
         return <Dashboard />;
       case "notifications":
-        return (
-          <div style={{ minHeight: "100vh", background: "#f6f7fb" }}>
-            <div style={{ maxWidth: 1120, margin: "0 auto" }}>
-              <Notifications />
-            </div>
-          </div>
-        );
+        return <Notifications />;
       case "messages":
         return <Messages />;
       case "history":
@@ -65,9 +59,14 @@ export default function App() {
       </div>
 
       {/* Mobile Layout */}
-      <div className="lg:hidden">
-        <div className="max-w-md mx-auto min-h-screen relative backdrop-blur-sm bg-white/80 shadow-2xl shadow-slate-200/50">
+      <div className="lg:hidden min-h-screen">
+        {/* Contenu scrollable avec padding pour la nav */}
+        <div className="mobile-content">
           {renderActivePage()}
+        </div>
+        
+        {/* Navigation fixe en bas */}
+        <div className="bottom-nav-container">
           <BottomNavigation
             activeTab={activeTab}
             onTabChange={setActiveTab}
