@@ -9,26 +9,41 @@
  *
  ***************************************************************************/
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SideNavigation } from "./components/SideNavigation";
 import { BottomNavigation } from "./components/BottomNavigation";
 import { Dashboard } from "./pages/Dashboard";
 import Notifications from "./pages/Notifications";
 import Messages from "./pages/Messages";
 import HistoryPage from "./pages/History";
-
-// Mock temporaire
-const mockNotifications = [
-  { id: "1", isNew: true },
-  { id: "2", isNew: true },
-  { id: "3", isNew: false },
-  { id: "4", isNew: false },
-];
+import { getNotifications } from "./services/notifications.api";
 
 export default function App() {
   const [activeTab, setActiveTab] = useState("dashboard");
-  const [notifications] = useState(mockNotifications);
+  const [notifications, setNotifications] = useState([]);
 
+  // Charge les notifications depuis l'API au démarrage et toutes les 10 secondes
+  useEffect(() => {
+    const loadNotifications = async () => {
+      try {
+        const data = await getNotifications();
+        setNotifications(data);
+      } catch (error) {
+        console.error("Erreur lors du chargement des notifications:", error);
+      }
+    };
+
+    // Chargement initial
+    loadNotifications();
+
+    // Actualisation automatique toutes les 10 secondes
+    const interval = setInterval(loadNotifications, 10000);
+
+    // Nettoyage à la destruction du composant
+    return () => clearInterval(interval);
+  }, []);
+
+  // Compte uniquement les notifications NON LUES (isNew: true)
   const newNotificationsCount = notifications.filter((n) => n.isNew).length;
 
   const renderActivePage = () => {
