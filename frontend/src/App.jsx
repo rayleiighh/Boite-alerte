@@ -13,9 +13,9 @@ import { useState } from "react";
 import { SideNavigation } from "./components/SideNavigation";
 import { BottomNavigation } from "./components/BottomNavigation";
 import { DashboardContainer } from "./pages/DashboardContainer";
-import Notifications from "./pages/Notifications";
-import Messages from "./pages/Messages";
-import HistoryPage from "./pages/History";
+import { Notifications } from "./pages/Notifications";
+import { MessageSetup } from "./pages/MessageSetup";
+import { HistoryPage } from "./pages/History";
 
 // ✅ Mock temporaire
 const mockNotifications = [
@@ -44,7 +44,7 @@ export default function App() {
           </div>
         );
       case "messages":
-        return <Messages />;
+        return <MessageSetup />;
       case "history":
         return <HistoryPage />;
       default:

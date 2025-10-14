@@ -4,7 +4,7 @@ import EventItemRow from "../components/EventItem";
 import Filters from "../components/Filters";
 import Pagination from "../components/Pagination";
 
-export default function HistoryPage() {
+export function HistoryPage() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({ type: "all" });
@@ -136,7 +136,12 @@ export default function HistoryPage() {
 
         {/* --- Pagination --- */}
         <div className="mt-6 flex justify-center md:justify-center items-center flex-wrap gap-3 pb-8">
-          <Pagination page={page} limit={limit} total={total} onPage={setPage} />
+          <Pagination
+            page={page}
+            limit={limit}
+            total={total}
+            onPage={setPage}
+          />
         </div>
       </div>
     </div>
