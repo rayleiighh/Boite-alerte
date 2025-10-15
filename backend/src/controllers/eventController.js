@@ -6,13 +6,15 @@ exports.addEvent = async (req, res) => {
     const { type, timestamp, deviceID } = req.body;
 
     if (!type || !timestamp || !deviceID) {
-      return res.status(400).json({ error: "Champs manquants : { type, timestamp, deviceID }" });
+      return res
+        .status(400)
+        .json({ error: "Champs manquants : { type, timestamp, deviceID }" });
     }
 
     const event = new Event({
       type,
       timestamp: new Date(timestamp),
-      deviceID
+      deviceID,
     });
 
     await event.save();
@@ -23,11 +25,65 @@ exports.addEvent = async (req, res) => {
   }
 };
 
+// GET /api/events/latest - récupérer le dernier événement pour le dashboard
+exports.getLatestEvent = async (req, res) => {
+  try {
+    // Récupérer le dernier événement
+    const latestEvent = await Event.findOne().sort({ createdAt: -1 });
+
+    if (!latestEvent) {
+      return res.json({
+        hasEvent: false,
+        status: "empty",
+        message: "Aucun courrier détecté",
+      });
+    }
+
+    // Déterminer l'état de la boîte basé sur le dernier événement
+    let status = "empty";
+    let message = "";
+
+    switch (latestEvent.type) {
+      case "mail_received":
+      case "courrier":
+        status = "mail";
+        message = `Courrier reçu le ${latestEvent.timestamp.toLocaleDateString("fr-FR")} à ${latestEvent.timestamp.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}`;
+        break;
+      case "package_received":
+      case "colis":
+        status = "package";
+        message = `Colis reçu le ${latestEvent.timestamp.toLocaleDateString("fr-FR")} à ${latestEvent.timestamp.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}`;
+        break;
+      case "box_opened":
+      case "ouverture":
+        status = "empty";
+        message = `Boîte ouverte le ${latestEvent.timestamp.toLocaleDateString("fr-FR")} à ${latestEvent.timestamp.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}`;
+        break;
+      default:
+        status = "empty";
+        message = `Dernier événement le ${latestEvent.timestamp.toLocaleDateString("fr-FR")} à ${latestEvent.timestamp.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}`;
+    }
+
+    res.json({
+      hasEvent: true,
+      status,
+      message,
+      lastEvent: {
+        type: latestEvent.type,
+        timestamp: latestEvent.timestamp,
+        deviceID: latestEvent.deviceID,
+      },
+    });
+  } catch (err) {
+    res.status(500).json({ error: "❌ Erreur serveur : " + err.message });
+  }
+};
+
 // GET /api/events (avec pagination et filtres)
 exports.getEvents = async (req, res) => {
   try {
     // Pagination
-    const page = parseInt(req.query.page) || 1;  // par défaut page 1
+    const page = parseInt(req.query.page) || 1; // par défaut page 1
     const limit = parseInt(req.query.limit) || 10; // par défaut 10 résultats
     const skip = (page - 1) * limit;
 
@@ -37,8 +93,10 @@ exports.getEvents = async (req, res) => {
     if (req.query.deviceID) filters.deviceID = req.query.deviceID;
     if (req.query.startDate || req.query.endDate) {
       filters.timestamp = {};
-      if (req.query.startDate) filters.timestamp.$gte = new Date(req.query.startDate);
-      if (req.query.endDate) filters.timestamp.$lte = new Date(req.query.endDate);
+      if (req.query.startDate)
+        filters.timestamp.$gte = new Date(req.query.startDate);
+      if (req.query.endDate)
+        filters.timestamp.$lte = new Date(req.query.endDate);
     }
 
     // Récupération filtrée et paginée
@@ -55,7 +113,7 @@ exports.getEvents = async (req, res) => {
       limit,
       total,
       totalPages: Math.ceil(total / limit),
-      events
+      events,
     });
   } catch (err) {
     res.status(500).json({ error: "❌ Erreur serveur : " + err.message });

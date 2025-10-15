@@ -12,17 +12,17 @@
 import { useState, useEffect } from "react";
 import { SideNavigation } from "./components/SideNavigation";
 import { BottomNavigation } from "./components/BottomNavigation";
-import { Dashboard } from "./pages/Dashboard";
-import Notifications from "./pages/Notifications";
-import Messages from "./pages/Messages";
-import HistoryPage from "./pages/History";
-import { getNotifications } from "./services/notifications.api";
+import { DashboardContainer } from "./pages/DashboardContainer";
+import Notifications from "./pages/Notifications"; // ✅ import par défaut
+import { MessageSetup } from "./pages/MessageSetup";
+import { HistoryPage } from "./pages/History";
+import { getNotifications } from "./services/notifications.api.js"; // ✅ vrai service API
 
 export default function App() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [notifications, setNotifications] = useState([]);
 
-  // Charge les notifications depuis l'API au démarrage et toutes les 10 secondes
+  // 🔁 Charge les notifications depuis l'API au démarrage et toutes les 10 secondes
   useEffect(() => {
     const loadNotifications = async () => {
       try {
@@ -33,27 +33,22 @@ export default function App() {
       }
     };
 
-    // Chargement initial
-    loadNotifications();
-
-    // Actualisation automatique toutes les 10 secondes
+    loadNotifications(); // initial
     const interval = setInterval(loadNotifications, 10000);
-
-    // Nettoyage à la destruction du composant
     return () => clearInterval(interval);
   }, []);
 
-  // Compte uniquement les notifications NON LUES (isNew: true)
+  // 🔢 Compte uniquement les notifications non lues
   const newNotificationsCount = notifications.filter((n) => n.isNew).length;
 
   const renderActivePage = () => {
     switch (activeTab) {
       case "dashboard":
-        return <Dashboard />;
+        return <DashboardContainer />;
       case "notifications":
         return <Notifications />;
       case "messages":
-        return <Messages />;
+        return <MessageSetup />;
       case "history":
         return <HistoryPage />;
       default:
@@ -75,11 +70,8 @@ export default function App() {
 
       {/* Mobile Layout */}
       <div className="lg:hidden min-h-screen">
-        {/* Contenu scrollable avec padding pour la nav */}
-        <div className="mobile-content">
-          {renderActivePage()}
-        </div>
-        
+        <div className="mobile-content">{renderActivePage()}</div>
+
         {/* Navigation fixe en bas */}
         <div className="bottom-nav-container">
           <BottomNavigation

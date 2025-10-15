@@ -1,14 +1,22 @@
 export default function EventItemRow({ e }) {
-  const dt = new Date(e.timestamp);
-  const formatted = dt.toLocaleString();
+  const formatDate = (d) =>
+    new Date(d).toLocaleString("fr-FR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
 
   return (
-    <tr>
-      <td>
-        <span className="badge">{e.type}</span>
+    <tr className="hover:bg-slate-50 transition">
+      <td className="py-3 px-4">
+        <span className="inline-block px-3 py-1 text-sm font-medium text-slate-700 bg-slate-100 rounded-full">
+          {e.type}
+        </span>
       </td>
-      <td>{formatted}</td>
-      <td>{e.deviceID}</td>
+      <td className="py-3 px-4">{formatDate(e.timestamp)}</td>
+      <td className="py-3 px-4">{e.deviceID || "—"}</td>
     </tr>
   );
 }
