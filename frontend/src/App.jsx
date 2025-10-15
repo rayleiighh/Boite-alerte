@@ -1,7 +1,7 @@
 /***************************************************************************
  *
  *  Project Title : Boite-alerte
- *  Authors       : Nicolas H, Rayane B, ..., ..., ...
+ *  Authors       : Nicolas H, Rayane B, Saad Z, ..., ...
  *  File          : App.jsx
  *  Description   : Main App component
  *  Date          : 27/09/2025
@@ -9,26 +9,36 @@
  *
  ***************************************************************************/
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SideNavigation } from "./components/SideNavigation";
 import { BottomNavigation } from "./components/BottomNavigation";
 import { DashboardContainer } from "./pages/DashboardContainer";
-import { Notifications } from "./pages/Notifications";
+import Notifications from "./pages/Notifications"; // ✅ import par défaut
 import { MessageSetup } from "./pages/MessageSetup";
 import { HistoryPage } from "./pages/History";
-
-// ✅ Mock temporaire
-const mockNotifications = [
-  { id: "1", isNew: true },
-  { id: "2", isNew: true },
-  { id: "3", isNew: false },
-  { id: "4", isNew: false },
-];
+import { getNotifications } from "./services/notifications.api.js"; // ✅ vrai service API
 
 export default function App() {
   const [activeTab, setActiveTab] = useState("dashboard");
-  const [notifications] = useState(mockNotifications);
+  const [notifications, setNotifications] = useState([]);
 
+  // 🔁 Charge les notifications depuis l'API au démarrage et toutes les 10 secondes
+  useEffect(() => {
+    const loadNotifications = async () => {
+      try {
+        const data = await getNotifications();
+        setNotifications(data);
+      } catch (error) {
+        console.error("Erreur lors du chargement des notifications:", error);
+      }
+    };
+
+    loadNotifications(); // initial
+    const interval = setInterval(loadNotifications, 10000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // 🔢 Compte uniquement les notifications non lues
   const newNotificationsCount = notifications.filter((n) => n.isNew).length;
 
   const renderActivePage = () => {
@@ -36,13 +46,7 @@ export default function App() {
       case "dashboard":
         return <DashboardContainer />;
       case "notifications":
-        return (
-          <div style={{ minHeight: "100vh", background: "#f6f7fb" }}>
-            <div style={{ maxWidth: 1120, margin: "0 auto" }}>
-              <Notifications />
-            </div>
-          </div>
-        );
+        return <Notifications />;
       case "messages":
         return <MessageSetup />;
       case "history":
@@ -65,9 +69,11 @@ export default function App() {
       </div>
 
       {/* Mobile Layout */}
-      <div className="lg:hidden">
-        <div className="max-w-md mx-auto min-h-screen relative backdrop-blur-sm bg-white/80 shadow-2xl shadow-slate-200/50">
-          {renderActivePage()}
+      <div className="lg:hidden min-h-screen">
+        <div className="mobile-content">{renderActivePage()}</div>
+
+        {/* Navigation fixe en bas */}
+        <div className="bottom-nav-container">
           <BottomNavigation
             activeTab={activeTab}
             onTabChange={setActiveTab}

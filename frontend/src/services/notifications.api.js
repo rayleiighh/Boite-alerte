@@ -1,4 +1,4 @@
-const API_BASE = (import.meta?.env?.VITE_API_BASE || "http://localhost:4000").replace(/\/$/, "");
+const API_BASE = (import.meta?.env?.VITE_API_BASE || "http://localhost:5001").replace(/\/$/, "");
 
 const mock = () => {
   const now = Date.now();
@@ -14,25 +14,44 @@ export async function getNotifications() {
   try {
     const r = await fetch(`${API_BASE}/api/notifications`);
     if (!r.ok) throw new Error("bad");
-    return await r.json();
-  } catch {
+    const data = await r.json();
+    console.log("✅ Notifications reçues:", data);
+    return data;
+  } catch (err) {
+    console.error("❌ Erreur fetch notifications:", err);
+    console.log("⚠️ Utilisation des données mockées");
     return mock();
   }
 }
 
 export async function markAllRead() {
-  try { return (await fetch(`${API_BASE}/api/notifications/mark-all-read`, {method:"POST"})).ok; }
-  catch { return true; }
+  try { 
+    const r = await fetch(`${API_BASE}/api/notifications/mark-all-read`, {method:"POST"});
+    return r.ok; 
+  } catch (err) {
+    console.error("❌ Erreur markAllRead:", err);
+    return true; 
+  }
 }
 
 export async function markOneRead(id) {
-  try { return (await fetch(`${API_BASE}/api/notifications/${id}/read`, {method:"POST"})).ok; }
-  catch { return true; }
+  try { 
+    const r = await fetch(`${API_BASE}/api/notifications/${id}/read`, {method:"POST"});
+    return r.ok; 
+  } catch (err) {
+    console.error("❌ Erreur markOneRead:", err);
+    return true; 
+  }
 }
 
 export async function deleteOne(id) {
-  try { return (await fetch(`${API_BASE}/api/notifications/${id}`, {method:"DELETE"})).ok; }
-  catch { return true; }
+  try { 
+    const r = await fetch(`${API_BASE}/api/notifications/${id}`, {method:"DELETE"});
+    return r.ok; 
+  } catch (err) {
+    console.error("❌ Erreur deleteOne:", err);
+    return true; 
+  }
 }
 
 export function subscribeRealtime({ onOpen, onClose, onError, onMessage }) {
@@ -47,15 +66,9 @@ export function subscribeRealtime({ onOpen, onClose, onError, onMessage }) {
     ws.addEventListener("message", ev => {
       try { onMessage?.(JSON.parse(ev.data)); } catch {}
     });
-  } catch {}
-
-  const sim = setInterval(() => {
-    // simulation: de temps en temps, une notif "mail"
-    if (Math.random() < 0.25) {
-      const id = (crypto.randomUUID?.() || Math.random().toString(36).slice(2));
-      onMessage?.({ id, type:"mail", title:"Courrier (simulation)", description:"Détection de poids", time:new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}), isNew:true });
-    }
-  }, 10_000);
+  } catch (err) {
+    console.log("⚠️ WebSocket non disponible, notifications temps réel désactivées");
+  }
 
   return {
     status() {
@@ -65,7 +78,6 @@ export function subscribeRealtime({ onOpen, onClose, onError, onMessage }) {
     unsubscribe() {
       closed = true;
       try { ws && ws.close(); } catch {}
-      clearInterval(sim);
     },
   };
 }
