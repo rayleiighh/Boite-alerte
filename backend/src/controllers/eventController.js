@@ -54,7 +54,17 @@ exports.addEvent = async (req, res) => {
 
     await event.save();
 
-    console.log(`📬 [EVENT] Nouveau courrier : ${type} | ${deviceID} | ${timestamp}`);
+    const localTime = new Date(timestamp).toLocaleString("fr-BE", { 
+      timeZone: "Europe/Brussels",
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    });
+
+    console.log(`📬 [EVENT] Nouveau courrier : ${type} | ${deviceID} | ${localTime} (local)`);
 
     // ✅ MISE EN CACHE de la réponse (si Idempotency-Key fournie)
     if (idempotencyKey) {
@@ -93,25 +103,42 @@ exports.getLatestEvent = async (req, res) => {
     let status = "empty";
     let message = "";
 
+    //  CORRECTION : Options de formatage avec timezone
+    const dateOptions = { 
+      timeZone: "Europe/Brussels",
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    };
+    
+    const timeOptions = { 
+      timeZone: "Europe/Brussels",
+      hour: "2-digit", 
+      minute: "2-digit" 
+    };
+
+    const localDate = latestEvent.timestamp.toLocaleDateString("fr-FR", dateOptions);
+    const localTime = latestEvent.timestamp.toLocaleTimeString("fr-FR", timeOptions);
+
     switch (latestEvent.type) {
       case "mail_received":
       case "courrier":
         status = "mail";
-        message = message = `Courrier reçu le ${latestEvent.timestamp.toLocaleDateString("fr-FR", { timeZone: "Europe/Brussels" })} à ${latestEvent.timestamp.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Brussels" })}`;
+        message = `Courrier reçu le ${localDate} à ${localTime}`;
         break;
       case "package_received":
       case "colis":
         status = "package";
-        message = `Colis reçu le ${latestEvent.timestamp.toLocaleDateString("fr-FR", { timeZone: "Europe/Brussels" })} à ${latestEvent.timestamp.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Brussels" })}`;
+        message = `Colis reçu le ${localDate} à ${localTime}`;
         break;
       case "box_opened":
       case "ouverture":
         status = "empty";
-        message = `Boîte ouverte le ${latestEvent.timestamp.toLocaleDateString("fr-FR", { timeZone: "Europe/Brussels" })} à ${latestEvent.timestamp.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Brussels" })}`;
+        message = `Boîte ouverte le ${localDate} à ${localTime}`;
         break;
       default:
         status = "empty";
-        message = `Dernier événement le ${latestEvent.timestamp.toLocaleDateString("fr-FR", { timeZone: "Europe/Brussels" })} à ${latestEvent.timestamp.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Brussels" })}`;
+        message = `Dernier événement le ${localDate} à ${localTime}`;
     }
 
     res.json({
