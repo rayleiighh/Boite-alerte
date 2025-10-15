@@ -1,5 +1,10 @@
 const Event = require("../models/Event");
 
+
+// Stockage temporaire des Idempotency-Key (en mémoire, expire après 5 min)
+const idempotencyCache = new Map();
+const IDEMPOTENCY_TTL = 5 * 60 * 1000; // 5 minutes
+
 // POST /api/events
 exports.addEvent = async (req, res) => {
   try {
