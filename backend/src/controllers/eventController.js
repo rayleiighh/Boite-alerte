@@ -97,21 +97,21 @@ exports.getLatestEvent = async (req, res) => {
       case "mail_received":
       case "courrier":
         status = "mail";
-        message = `Courrier reçu le ${latestEvent.timestamp.toLocaleDateString("fr-FR")} à ${latestEvent.timestamp.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}`;
+        message = message = `Courrier reçu le ${latestEvent.timestamp.toLocaleDateString("fr-FR", { timeZone: "Europe/Brussels" })} à ${latestEvent.timestamp.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Brussels" })}`;
         break;
       case "package_received":
       case "colis":
         status = "package";
-        message = `Colis reçu le ${latestEvent.timestamp.toLocaleDateString("fr-FR")} à ${latestEvent.timestamp.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}`;
+        message = `Colis reçu le ${latestEvent.timestamp.toLocaleDateString("fr-FR", { timeZone: "Europe/Brussels" })} à ${latestEvent.timestamp.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Brussels" })}`;
         break;
       case "box_opened":
       case "ouverture":
         status = "empty";
-        message = `Boîte ouverte le ${latestEvent.timestamp.toLocaleDateString("fr-FR")} à ${latestEvent.timestamp.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}`;
+        message = `Boîte ouverte le ${latestEvent.timestamp.toLocaleDateString("fr-FR", { timeZone: "Europe/Brussels" })} à ${latestEvent.timestamp.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Brussels" })}`;
         break;
       default:
         status = "empty";
-        message = `Dernier événement le ${latestEvent.timestamp.toLocaleDateString("fr-FR")} à ${latestEvent.timestamp.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}`;
+        message = `Dernier événement le ${latestEvent.timestamp.toLocaleDateString("fr-FR", { timeZone: "Europe/Brussels" })} à ${latestEvent.timestamp.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Brussels" })}`;
     }
 
     res.json({
