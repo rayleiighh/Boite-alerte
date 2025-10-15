@@ -14,6 +14,7 @@ const cors = require("cors");
 const connectDB = require("./config/db");
 const eventRoutes = require("./routes/eventRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
+const displayRoutes = require("./routes/displayRoutes");
 
 dotenv.config();
 
@@ -92,7 +93,7 @@ app.use("/api/notifications", notificationRoutes);
 // ✅ AJOUT : Routes compatibles ESP32 (anciennes URLs)
 // Redirection /events → /api/events (pour compatibilité ESP32)
 app.use("/events", eventRoutes);
-app.use("/display", notificationRoutes); // Si vous avez GET /display?deviceID=...
+app.use("/api/display", displayRoutes);
 
 // ========== GESTION ERREURS 404 ==========
 app.use((req, res) => {
