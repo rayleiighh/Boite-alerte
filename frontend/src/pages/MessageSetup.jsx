@@ -3,7 +3,7 @@ import { Save, MessageSquare, Clock, Home } from "lucide-react";
 import { Button } from "../components/button";
 import { Card } from "../components/card";
 import { Textarea } from "../components/textarea";
-import { Label } from "../components/Label";
+import { Label } from "../components/label";
 import { motion } from "framer-motion";
 
 export function MessageSetup({ currentMessage, onSaveMessage }) {

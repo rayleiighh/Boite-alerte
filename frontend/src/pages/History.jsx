@@ -4,7 +4,7 @@ import EventItemRow from "../components/EventItem";
 import Filters from "../components/Filters";
 import Pagination from "../components/Pagination";
 
-export function HistoryPage() {
+export default function HistoryPage() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({ type: "all" });

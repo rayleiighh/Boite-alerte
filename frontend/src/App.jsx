@@ -13,16 +13,28 @@ import { useState, useEffect } from "react";
 import { SideNavigation } from "./components/SideNavigation";
 import { BottomNavigation } from "./components/BottomNavigation";
 import { DashboardContainer } from "./pages/DashboardContainer";
-import Notifications from "./pages/Notifications"; // ✅ import par défaut
+import Notifications from "./pages/Notifications"; // ✅ garde le composant de feature/Notification
 import { MessageSetup } from "./pages/MessageSetup";
-import { HistoryPage } from "./pages/History";
+import HistoryPage from "./pages/History";
 import { getNotifications } from "./services/notifications.api.js"; // ✅ vrai service API
+import Login from "./pages/Login";
+
+// ✅ Mock temporaire
+const mockNotifications = [
+  { id: "1", isNew: true },
+  { id: "2", isNew: true },
+  { id: "3", isNew: false },
+  { id: "4", isNew: false },
+];
 
 export default function App() {
+
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [activeTab, setActiveTab] = useState("dashboard");
+  
   const [notifications, setNotifications] = useState([]);
 
-  // 🔁 Charge les notifications depuis l'API au démarrage et toutes les 10 secondes
+   // 🔁 Charge les notifications depuis l'API au démarrage et toutes les 10 secondes
   useEffect(() => {
     const loadNotifications = async () => {
       try {
@@ -56,6 +68,12 @@ export default function App() {
     }
   };
 
+    // ✅ Si l'utilisateur n'est pas connecté, afficher la page Login
+  if (!isLoggedIn) {
+    return <Login onLoginSuccess={() => setIsLoggedIn(true)} />;
+  }
+
+  // ✅ Si connecté, afficher la structure principale
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
       {/* Desktop Layout */}
