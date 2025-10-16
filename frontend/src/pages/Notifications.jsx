@@ -13,12 +13,21 @@ const Icon = {
   mail: (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
       <path d="M4 6h16v12H4z" stroke="currentColor" strokeWidth="1.8" />
-      <path d="M4 7l8 6 8-6" stroke="currentColor" strokeWidth="1.8" fill="none" />
+      <path
+        d="M4 7l8 6 8-6"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        fill="none"
+      />
     </svg>
   ),
   package: (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-      <path d="M3 7l9-4 9 4v10l-9 4-9-4V7z" stroke="currentColor" strokeWidth="1.8" />
+      <path
+        d="M3 7l9-4 9 4v10l-9 4-9-4V7z"
+        stroke="currentColor"
+        strokeWidth="1.8"
+      />
       <path d="M12 3v18" stroke="currentColor" strokeWidth="1.5" />
     </svg>
   ),
@@ -37,7 +46,12 @@ const Icon = {
 };
 
 const TYPE_LABEL = { mail: "Courrier", package: "Colis", alert: "Alerte" };
-const TYPE_COLOR = { mail: "#3b82f6", package: "#f97316", alert: "#ef4444", default: "#6b7280" };
+const TYPE_COLOR = {
+  mail: "#3b82f6",
+  package: "#f97316",
+  alert: "#ef4444",
+  default: "#6b7280",
+};
 
 export default function Notifications() {
   const [items, setItems] = useState([]);
@@ -69,7 +83,8 @@ export default function Notifications() {
   const filtered = useMemo(() => {
     let arr = [...items];
     if (filter === "unread") arr = arr.filter((n) => n.isNew);
-    else if (["mail", "package", "alert"].includes(filter)) arr = arr.filter((n) => n.type === filter);
+    else if (["mail", "package", "alert"].includes(filter))
+      arr = arr.filter((n) => n.type === filter);
     if (q.trim()) {
       const s = q.toLowerCase();
       arr = arr.filter(
@@ -89,7 +104,10 @@ export default function Notifications() {
   };
   const onMarkOne = async (id) => {
     const ok = await markOneRead(id);
-    if (ok) setItems((prev) => prev.map((n) => (n.id === id ? { ...n, isNew: false } : n)));
+    if (ok)
+      setItems((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, isNew: false } : n)),
+      );
   };
   const onDelete = async (id) => {
     const ok = await deleteOne(id);
@@ -107,14 +125,20 @@ export default function Notifications() {
         <div className="notif-counters">
           <span>{newCount} nouvelles notifications</span>
           <span>{items.length} au total</span>
-          <span className={`socket ${socketStatus}`}>Temps réel: {socketStatus}</span>
+          <span className={`socket ${socketStatus}`}>
+            Temps réel: {socketStatus}
+          </span>
         </div>
       </div>
 
       {/* Toolbar */}
       <div className="notif-toolbar">
         <div className="search">
-          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Rechercher… (titre, type, heure)" />
+          <input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Rechercher… (titre, type, heure)"
+          />
         </div>
         <div className="filters">
           {[
@@ -124,7 +148,11 @@ export default function Notifications() {
             { id: "package", label: "Colis" },
             { id: "alert", label: "Alertes" },
           ].map((f) => (
-            <button key={f.id} className={filter === f.id ? "pill active" : "pill"} onClick={() => setFilter(f.id)}>
+            <button
+              key={f.id}
+              className={filter === f.id ? "pill active" : "pill"}
+              onClick={() => setFilter(f.id)}
+            >
               {f.label}
             </button>
           ))}
@@ -147,7 +175,10 @@ export default function Notifications() {
         ) : (
           filtered.map((n) => (
             <article key={n.id} className={`card ${n.isNew ? "is-new" : ""}`}>
-              <div className="card-left" style={{ color: TYPE_COLOR[n.type] || TYPE_COLOR.default }}>
+              <div
+                className="card-left"
+                style={{ color: TYPE_COLOR[n.type] || TYPE_COLOR.default }}
+              >
                 <div className="circle">{Icon[n.type] || Icon.clock}</div>
               </div>
 
@@ -161,7 +192,12 @@ export default function Notifications() {
                 </div>
 
                 <div className="row gap">
-                  <span className="badge" style={{ background: TYPE_COLOR[n.type] || TYPE_COLOR.default }}>
+                  <span
+                    className="badge"
+                    style={{
+                      background: TYPE_COLOR[n.type] || TYPE_COLOR.default,
+                    }}
+                  >
                     {TYPE_LABEL[n.type] || "Autre"}
                   </span>
 
@@ -173,7 +209,10 @@ export default function Notifications() {
                     <span className="muted">lu</span>
                   )}
 
-                  <button className="mini danger" onClick={() => onDelete(n.id)}>
+                  <button
+                    className="mini danger"
+                    onClick={() => onDelete(n.id)}
+                  >
                     Supprimer
                   </button>
                 </div>

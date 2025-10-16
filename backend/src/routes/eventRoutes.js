@@ -1,6 +1,13 @@
 const express = require("express");
 const router = express.Router();
-const { addEvent, getEvents } = require("../controllers/eventController");
+const {
+  addEvent,
+  getEvents,
+  getLatestEvent,
+} = require("../controllers/eventController");
+
+// GET /api/events/latest → récupérer le dernier événement pour le dashboard
+router.get("/latest", getLatestEvent);
 
 // POST /api/events → ajouter un event
 router.post("/", addEvent);

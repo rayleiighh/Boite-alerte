@@ -4,6 +4,20 @@ const API = axios.create({
   baseURL: "/api", // Use Vite proxy to backend
 });
 
+// Récupérer le dernier événement pour le dashboard
+export async function fetchLatestEvent() {
+  try {
+    const res = await API.get("/events/latest");
+    return res.data;
+  } catch (error) {
+    console.error(
+      "Erreur lors de la récupération du dernier événement:",
+      error,
+    );
+    throw error;
+  }
+}
+
 // Récupérer les events avec pagination & filtres
 export async function fetchEvents(filters = {}) {
   const params = {
