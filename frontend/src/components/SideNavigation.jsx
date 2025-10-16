@@ -1,6 +1,6 @@
 // Side navigation for desktop
 
-import { Home, Bell, MessageSquare, History } from "lucide-react";
+import { Home, Bell, MessageSquare, History, Monitor } from "lucide-react";
 import { motion } from "framer-motion";
 
 export function SideNavigation({
@@ -22,8 +22,8 @@ export function SideNavigation({
     },
     {
       id: "messages",
-      icon: MessageSquare,
-      label: "Messages",
+      icon: Monitor,
+      label: "Message",
     },
     {
       id: "history",
