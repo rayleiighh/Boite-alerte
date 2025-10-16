@@ -15,11 +15,6 @@ import { BottomNavigation } from "./components/BottomNavigation";
 import { Dashboard } from "./pages/Dashboard";
 import Notifications from "./pages/Notifications"; // ✅ garde le composant de feature/Notification
 import Messages from "./pages/Messages";
-<<<<<<< HEAD
-import Login from "./pages/Login";
-=======
-import HistoryPage from "./pages/History";
->>>>>>> origin/developp
 import HistoryPage from "./pages/History";
 import Login from "./pages/Login";
 
@@ -32,7 +27,6 @@ const mockNotifications = [
 ];
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState("dashboard");
   const [notifications] = useState(mockNotifications);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [activeTab, setActiveTab] = useState("dashboard"); // ✅ ajouté
