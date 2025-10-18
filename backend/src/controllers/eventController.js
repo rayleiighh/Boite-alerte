@@ -83,14 +83,21 @@ exports.getLatestEvent = async (req, res) => {
 exports.getEvents = async (req, res) => {
   try {
     // Pagination
-    const page = parseInt(req.query.page) || 1; // par défaut page 1
-    const limit = parseInt(req.query.limit) || 10; // par défaut 10 résultats
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
     // Filtres
     const filters = {};
-    if (req.query.type) filters.type = req.query.type;
-    if (req.query.deviceID) filters.deviceID = req.query.deviceID;
+
+    if (req.query.type && req.query.type !== "all") {
+      filters.type = req.query.type;
+    }
+
+    if (req.query.deviceID) {
+      filters.deviceID = req.query.deviceID;
+    }
+
     if (req.query.startDate || req.query.endDate) {
       filters.timestamp = {};
       if (req.query.startDate)
@@ -99,13 +106,22 @@ exports.getEvents = async (req, res) => {
         filters.timestamp.$lte = new Date(req.query.endDate);
     }
 
+    // 🔍 Recherche textuelle
+    if (req.query.search) {
+      const search = req.query.search.trim();
+      filters.$or = [
+        { type: { $regex: search, $options: "i" } },
+        { deviceID: { $regex: search, $options: "i" } },
+        // possibilité de rechercher une date sous forme de chaîne (approximative)
+      ];
+    }
+
     // Récupération filtrée et paginée
     const events = await Event.find(filters)
       .sort({ timestamp: -1 })
       .skip(skip)
       .limit(limit);
 
-    // Compter le total (pour le frontend)
     const total = await Event.countDocuments(filters);
 
     res.json({

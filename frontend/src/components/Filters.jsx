@@ -11,6 +11,15 @@ export default function Filters({ initial, onChange }) {
 
   return (
     <div className="flex flex-col md:flex-row md:items-center md:justify-start gap-3">
+      {/* Recherche textuelle */}
+      <input
+        type="search"
+        placeholder="Rechercher..."
+        className="flex-1 min-w-[180px] rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+        value={values.search || ""}
+        onChange={(e) => update("search", e.target.value)}
+      />
+      
       {/* Type */}
       <select
         className="flex-1 min-w-[140px] rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200"

@@ -34,6 +34,10 @@ export async function fetchEvents(filters = {}) {
   if (filters.dateEnd) {
     params.endDate = filters.dateEnd;
   }
+    // 🔍 Ajout du paramètre search
+  if (filters.search && filters.search.trim() !== "") {
+    params.search = filters.search.trim();
+  }
 
   const res = await API.get("/events", { params });
   console.log("API response:", res.data);
