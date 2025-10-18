@@ -50,3 +50,14 @@ export async function fetchEvents(filters = {}) {
     total: res.data.total,
   };
 }
+
+// Supprimer un événement par ID
+export async function deleteEvent(id) {
+  try {
+    const res = await API.delete(`/events/${id}`);
+    return res.data;
+  } catch (error) {
+    console.error("Erreur lors de la suppression :", error);
+    throw error;
+  }
+}

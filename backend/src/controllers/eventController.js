@@ -135,3 +135,19 @@ exports.getEvents = async (req, res) => {
     res.status(500).json({ error: "❌ Erreur serveur : " + err.message });
   }
 };
+// DELETE /api/events/:id - supprimer un événement
+exports.deleteEvent = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const event = await Event.findByIdAndDelete(id);
+
+    if (!event) {
+      return res.status(404).json({ error: "Événement non trouvé" });
+    }
+
+    res.json({ success: true, message: "✅ Événement supprimé avec succès" });
+  } catch (err) {
+    res.status(500).json({ error: "❌ Erreur serveur : " + err.message });
+  }
+};
