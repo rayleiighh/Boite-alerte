@@ -1,4 +1,4 @@
-import Event from "../models/Event.js";
+const Event = require("../models/Event");
 
 // ========== CACHE ANTI-DOUBLON ==========
 const idempotencyCache = new Map();
@@ -14,7 +14,7 @@ setInterval(() => {
 }, 10 * 60 * 1000);
 
 // ========== POST /api/events ==========
-export const addEvent = async (req, res) => {
+exports.addEvent = async (req, res) => {
   try {
     const { type, timestamp, deviceID } = req.body;
 
@@ -24,21 +24,17 @@ export const addEvent = async (req, res) => {
       });
     }
 
-    // ✅ Gestion anti-doublon (Idempotency-Key)
     const idempotencyKey = req.headers["idempotency-key"];
-    if (idempotencyKey) {
-      if (idempotencyCache.has(idempotencyKey)) {
-        const cached = idempotencyCache.get(idempotencyKey);
-        console.log(`♻️ [DEDUP] Idempotency-Key déjà vu : ${idempotencyKey}`);
-        return res.status(200).json({
-          message: "✅ Event déjà enregistré (idempotence)",
-          event: cached.event,
-          cached: true,
-        });
-      }
+    if (idempotencyKey && idempotencyCache.has(idempotencyKey)) {
+      const cached = idempotencyCache.get(idempotencyKey);
+      console.log(`♻️ [DEDUP] Idempotency-Key déjà vu : ${idempotencyKey}`);
+      return res.status(200).json({
+        message: "✅ Event déjà enregistré (idempotence)",
+        event: cached.event,
+        cached: true,
+      });
     }
 
-    // ✅ Création de l'événement
     const event = new Event({
       type,
       timestamp: new Date(timestamp),
@@ -79,7 +75,7 @@ export const addEvent = async (req, res) => {
 };
 
 // ========== GET /api/events/latest ==========
-export const getLatestEvent = async (req, res) => {
+exports.getLatestEvent = async (req, res) => {
   try {
     const latestEvent = await Event.findOne().sort({ createdAt: -1 });
 
@@ -100,7 +96,6 @@ export const getLatestEvent = async (req, res) => {
       month: "2-digit",
       day: "2-digit",
     };
-
     const timeOptions = {
       timeZone: "Europe/Brussels",
       hour: "2-digit",
@@ -148,7 +143,7 @@ export const getLatestEvent = async (req, res) => {
 };
 
 // ========== GET /api/events (pagination + filtres) ==========
-export const getEvents = async (req, res) => {
+exports.getEvents = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
@@ -185,6 +180,7 @@ export const getEvents = async (req, res) => {
       .skip(skip)
       .limit(limit);
 
+    // ✅ ajout du comptage total (developp)
     const total = await Event.countDocuments(filters);
 
     res.json({
@@ -201,11 +197,11 @@ export const getEvents = async (req, res) => {
 };
 
 // ========== DELETE /api/events/:id ==========
-export const deleteEvent = async (req, res) => {
+exports.deleteEvent = async (req, res) => {
   try {
     const { id } = req.params;
-    const event = await Event.findByIdAndDelete(id);
 
+    const event = await Event.findByIdAndDelete(id);
     if (!event) {
       return res.status(404).json({ error: "Événement non trouvé" });
     }
