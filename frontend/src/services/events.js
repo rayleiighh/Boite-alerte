@@ -34,6 +34,10 @@ export async function fetchEvents(filters = {}) {
   if (filters.dateEnd) {
     params.endDate = filters.dateEnd;
   }
+    // 🔍 Ajout du paramètre search
+  if (filters.search && filters.search.trim() !== "") {
+    params.search = filters.search.trim();
+  }
 
   const res = await API.get("/events", { params });
   console.log("API response:", res.data);
@@ -45,4 +49,15 @@ export async function fetchEvents(filters = {}) {
     items: res.data.events, // backend renvoie { events, total, totalPages }
     total: res.data.total,
   };
+}
+
+// Supprimer un événement par ID
+export async function deleteEvent(id) {
+  try {
+    const res = await API.delete(`/events/${id}`);
+    return res.data;
+  } catch (error) {
+    console.error("Erreur lors de la suppression :", error);
+    throw error;
+  }
 }
