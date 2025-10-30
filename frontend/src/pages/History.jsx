@@ -6,7 +6,7 @@ import Pagination from "../components/Pagination";
 import ConfirmModal from "../components/ConfirmModal";
 import { Trash2 } from "lucide-react";
 
-export function HistoryPage() {
+export default function HistoryPage() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({ type: "all" });

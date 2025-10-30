@@ -3,7 +3,7 @@ import { Save, MessageSquare, Clock, Home, Hash } from "lucide-react";
 import { Button } from "../components/button";
 import { Card } from "../components/card";
 import { Textarea } from "../components/textarea";
-import { Label } from "../components/Label";
+import { Label } from "../components/label";
 import { motion } from "framer-motion";
 import { getDisplayConfig, updateDisplayConfig } from "../services/display.api";
 
