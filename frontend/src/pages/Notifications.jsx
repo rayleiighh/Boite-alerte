@@ -53,7 +53,7 @@ const TYPE_COLOR = {
   default: "#6b7280",
 };
 
-export default function Notifications() {
+export function Notifications() {
   const [items, setItems] = useState([]);
   const [filter, setFilter] = useState("all"); // all | unread | mail | package | alert
   const [q, setQ] = useState("");
