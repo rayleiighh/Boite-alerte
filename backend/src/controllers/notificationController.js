@@ -1,4 +1,6 @@
 const Event = require("../models/Event");
+const User = require("../models/User"); // ✅ AJOUT
+const { sendNotificationEmail } = require("../services/mailer");
 
 // Helpers de mapping pour convertir les types d'events en types de notifications
 const mapType = (t = "") => {
@@ -37,7 +39,7 @@ exports.getNotifications = async (req, res) => {
   try {
     // ✅ Tri avec fallback sur createdAt
     const events = await Event.find()
-      .sort({ timestamp: -1, createdAt: -1 }) // fallback createdAt si pas de timestamp
+      .sort({ timestamp: -1, createdAt: -1 })
       .limit(200)
       .lean();
 
@@ -48,7 +50,7 @@ exports.getNotifications = async (req, res) => {
       
       return {
         id: String(ev._id),
-        type: t, // "mail" | "package" | "alert"
+        type: t,
         title: t === "package" ? "Colis détecté"
              : t === "alert" ? "Alerte"
              : "Nouvelle lettre reçue",
@@ -56,7 +58,6 @@ exports.getNotifications = async (req, res) => {
                    : t === "alert" ? "Veuillez vérifier la boîte"
                    : "Courrier standard déposé dans la boîte aux lettres",
         time: prettyTime(eventDate),
-        // ✅ Garde la logique 24h (meilleur UX)
         isNew: (Date.now() - eventDate.getTime()) < 24 * 3600 * 1000,
       };
     });
@@ -79,6 +80,7 @@ exports.createNotification = async (req, res) => {
       });
     }
 
+    // Crée l'event
     const event = new Event({
       type,
       timestamp: new Date(timestamp),
@@ -86,10 +88,57 @@ exports.createNotification = async (req, res) => {
     });
 
     await event.save();
+    console.log("✅ Event créé:", event._id);
+
+    // ✅ Mapping du type pour l'email
+    const low = (type || "").toLowerCase();
+    const notifType = low.includes("colis") ? "package" 
+      : low.includes("alerte") ? "alert" 
+      : "mail";
+
+    const title = notifType === "package" ? "Colis détecté"
+      : notifType === "alert" ? "Alerte"
+      : "Nouvelle lettre reçue";
+
+    const description = notifType === "package"
+      ? "Un colis est en attente de récupération."
+      : notifType === "alert"
+      ? "Veuillez vérifier la boîte aux lettres."
+      : "Un courrier a été déposé dans votre boîte.";
+
+    const whenText = new Date(timestamp).toLocaleString("fr-FR");
+
+    // ✅ Récupère TOUS les utilisateurs actifs
+    const users = await User.find({ active: true }).select("email");
+    console.log(`📧 Envoi d'emails à ${users.length} utilisateur(s) inscrit(s)`);
+
+    if (users.length === 0) {
+      console.log("⚠️ Aucun utilisateur inscrit, aucun email envoyé");
+    }
+
+    // ✅ Envoie un email à CHAQUE utilisateur inscrit (non bloquant)
+    let emailsSent = 0;
+    users.forEach(user => {
+      sendNotificationEmail({
+        type: notifType,
+        title,
+        description,
+        when: whenText,
+        to: user.email // ✅ IMPORTANT : envoie à l'email de l'utilisateur
+      })
+      .then(() => {
+        emailsSent++;
+        console.log(`✅ Email envoyé à ${user.email}`);
+      })
+      .catch(err => {
+        console.error(`❌ Erreur email pour ${user.email}:`, err.message);
+      });
+    });
 
     res.status(201).json({ 
-      message: " Event enregistré avec succès", 
-      event 
+      message: "✅ Event enregistré avec succès", 
+      event,
+      emailsSent: users.length
     });
   } catch (err) {
     console.error("Erreur createNotification:", err);
@@ -99,8 +148,7 @@ exports.createNotification = async (req, res) => {
 
 // POST /api/notifications/mark-all-read - No-op pour compatibilité frontend
 exports.markAllRead = async (req, res) => {
-  // Les events n'ont pas de champ "vu", donc on renvoie juste un succès
-  res.json({ message: " Toutes les notifications marquées comme lues" });
+  res.json({ message: "✅ Toutes les notifications marquées comme lues" });
 };
 
 // POST /api/notifications/:id/read - No-op pour compatibilité frontend
@@ -113,7 +161,7 @@ exports.markOneRead = async (req, res) => {
       return res.status(404).json({ error: "Event introuvable" });
     }
 
-    res.json({ message: " Notification marquée comme lue" });
+    res.json({ message: "✅ Notification marquée comme lue" });
   } catch (err) {
     console.error("Erreur markOneRead:", err);
     res.status(500).json({ error: "Erreur serveur : " + err.message });
@@ -130,7 +178,7 @@ exports.deleteOne = async (req, res) => {
       return res.status(404).json({ error: "Event introuvable" });
     }
 
-    res.json({ message: " Event supprimé" });
+    res.json({ message: "✅ Event supprimé" });
   } catch (err) {
     console.error("Erreur deleteOne:", err);
     res.status(500).json({ error: "Erreur serveur : " + err.message });
