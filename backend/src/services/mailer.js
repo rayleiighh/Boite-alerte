@@ -23,28 +23,100 @@ transporter.verify((error, success) => {
 });
 
 async function sendNotificationEmail({ type, title, description, when, to }) {
-  const badge =
-    type === "package" ? "📦 Colis" :
-    type === "alert"   ? "⚠️ Alerte" :
-                         "✉️ Courrier";
+  const badge = type === "package" ? "📦 Colis"
+    : type === "alert" ? "⚠️ Alerte"
+    : "✉️ Courrier";
+
+  const badgeColor = type === "package" ? "#f97316"
+    : type === "alert" ? "#ef4444"
+    : "#3b82f6";
 
   const html = `
-  <div style="font-family:Inter,Arial,sans-serif;padding:16px;background:#f6f7fb">
-    <div style="max-width:600px;margin:0 auto;background:#fff;border-radius:12px;padding:24px;box-shadow:0 6px 20px rgba(0,0,0,.06)">
-      <h2 style="margin:0 0 8px">${badge} — ${title}</h2>
-      <p style="margin:0 0 12px;color:#111827">${description}</p>
-      <p style="margin:0;color:#6b7280;font-size:14px">Horodatage : <strong>${when}</strong></p>
-      <hr style="border:none;border-top:1px solid #e5e7eb;margin:20px 0">
-      <p style="color:#6b7280;font-size:12px;margin:0">Boîte-Alerte — notification automatique</p>
-    </div>
-  </div>`;
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Boîte-Alerte Notification</title>
+</head>
+<body style="margin:0;padding:0;background:#f6f7fb;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif">
+  
+  <!-- Container principal -->
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f6f7fb;padding:40px 20px">
+    <tr>
+      <td align="center">
+        
+        <!-- Card email -->
+        <table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:16px;box-shadow:0 8px 24px rgba(15,23,42,0.08);overflow:hidden;max-width:100%">
+          
+          <!-- Header avec gradient -->
+          <tr>
+            <td style="background:linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);padding:32px 24px;text-align:center">
+              <h1 style="margin:0;color:#fff;font-size:28px;font-weight:700;letter-spacing:-0.5px">
+                 Boîte-Alerte
+              </h1>
+              <p style="margin:8px 0 0;color:rgba(255,255,255,0.9);font-size:14px">
+                Votre système de notifications intelligent
+              </p>
+            </td>
+          </tr>
+          
+          <!-- Corps du message -->
+          <tr>
+            <td style="padding:32px 24px">
+              
+              <!-- Badge type -->
+              <div style="display:inline-block;background:${badgeColor};color:#fff;padding:8px 16px;border-radius:999px;font-size:13px;font-weight:600;margin-bottom:20px">
+                ${badge}
+              </div>
+              
+              <!-- Titre -->
+              <h2 style="margin:0 0 12px;color:#0f172a;font-size:24px;font-weight:600;line-height:1.3">
+                ${title}
+              </h2>
+              
+              <!-- Description -->
+              <p style="margin:0 0 24px;color:#475569;font-size:16px;line-height:1.6">
+                ${description}
+              </p>
+              
+              <!-- Horodatage -->
+              <div style="background:#f1f5f9;border-left:4px solid ${badgeColor};padding:16px;border-radius:8px">
+                <p style="margin:0;color:#64748b;font-size:14px">
+                   <strong style="color:#0f172a">Horodatage :</strong> ${when}
+                </p>
+              </div>
+              
+            </td>
+          </tr>
+          
+          <!-- Footer -->
+          <tr>
+            <td style="background:#f8fafc;padding:24px;text-align:center;border-top:1px solid #e2e8f0">
+              <p style="margin:0 0 8px;color:#64748b;font-size:13px">
+                Notification automatique de votre Boîte-Alerte
+              </p>
+              <p style="margin:0;color:#94a3b8;font-size:12px">
+                Pour gérer vos préférences, connectez-vous à votre tableau de bord
+              </p>
+            </td>
+          </tr>
+          
+        </table>
+        
+      </td>
+    </tr>
+  </table>
+  
+</body>
+</html>
+  `;
 
   await transporter.sendMail({
-    from: process.env.SMTP_USER, // Gmail exige que from = SMTP_USER
+    from: `"Boîte-Alerte" <${process.env.SMTP_USER}>`,
     to: to || process.env.MAIL_TO_DEFAULT || process.env.SMTP_USER,
     subject: `[Boîte-Alerte] ${title}`,
     html,
   });
 }
-
 module.exports = { transporter, sendNotificationEmail };
