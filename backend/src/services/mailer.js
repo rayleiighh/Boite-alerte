@@ -115,7 +115,7 @@ async function sendNotificationEmail({ type, title, description, when, to }) {
   await transporter.sendMail({
     from: `"Boîte-Alerte" <${process.env.SMTP_USER}>`,
     to: to || process.env.MAIL_TO_DEFAULT || process.env.SMTP_USER,
-    subject: `[Boîte-Alerte] ${title}`,
+    subject: `${title}`,
     html,
   });
 }
