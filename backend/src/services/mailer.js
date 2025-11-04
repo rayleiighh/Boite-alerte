@@ -1,22 +1,32 @@
+require("dotenv").config();
 const nodemailer = require("nodemailer");
 
+// Configuration Gmail simplifiée
 const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || "smtp.office365.com",
-  port: Number(process.env.SMTP_PORT || 587),
-  secure: String(process.env.SMTP_SECURE || "false") === "true",
-  auth: { 
-    user: process.env.SMTP_USER, 
-    pass: process.env.SMTP_PASS 
+  service: 'Gmail', // ✅ Utilise le preset Gmail
+  auth: {
+    user: process.env.SMTP_USER, // ton-email@gmail.com
+    pass: process.env.SMTP_PASS, // mot de passe d'application 16 caractères
   },
-  pool: true,
-  maxConnections: 3,
-  maxMessages: 100,
+  tls: {
+    rejectUnauthorized: false
+  }
+});
+
+// Vérification au démarrage (optionnel mais utile pour debug)
+transporter.verify((error, success) => {
+  if (error) {
+    console.error("❌ Erreur configuration SMTP Gmail:", error.message);
+  } else {
+    console.log("✅ Serveur Gmail prêt à envoyer des emails");
+  }
 });
 
 async function sendNotificationEmail({ type, title, description, when, to }) {
-  const badge = type === "package" ? " Colis"
-    : type === "alert" ? "⚠️ Alerte"
-    : " Courrier";
+  const badge =
+    type === "package" ? "📦 Colis" :
+    type === "alert"   ? "⚠️ Alerte" :
+                         "✉️ Courrier";
 
   const html = `
   <div style="font-family:Inter,Arial,sans-serif;padding:16px;background:#f6f7fb">
@@ -30,7 +40,7 @@ async function sendNotificationEmail({ type, title, description, when, to }) {
   </div>`;
 
   await transporter.sendMail({
-    from: process.env.MAIL_FROM || process.env.SMTP_USER,
+    from: process.env.SMTP_USER, // Gmail exige que from = SMTP_USER
     to: to || process.env.MAIL_TO_DEFAULT || process.env.SMTP_USER,
     subject: `[Boîte-Alerte] ${title}`,
     html,
