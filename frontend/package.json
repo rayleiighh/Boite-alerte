@@ -8,7 +8,8 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "postinstall": "npm i @rollup/rollup-linux-x64-gnu@^4.24.0 --no-save || true"
   },
   "dependencies": {
     "@radix-ui/react-label": "^2.1.7",
