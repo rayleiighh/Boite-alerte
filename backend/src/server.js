@@ -4,7 +4,7 @@
  *  Authors       : Nicolas H, ..., ..., ..., ...
  *  Description   : Access point of the backend application
  *  Date          : 27/09/2025
- *  Version       : [1.0.2] - Intégration WebSocket + fix port unique
+ *  Version       : [1.1.0] - Phase 1: Stats enrichies + Heartbeat
  *
  ***************************************************************************/
 
@@ -15,6 +15,7 @@ const connectDB = require("./config/db");
 const eventRoutes = require("./routes/eventRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 const displayRoutes = require("./routes/displayRoutes");
+const heartbeatRoutes = require("./routes/heartbeatRoutes"); // ✅ NOUVEAU
 const { WebSocketServer } = require("ws");
 
 dotenv.config();
@@ -87,6 +88,7 @@ app.get("/health", (req, res) => {
 app.use("/api/events", eventRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/display", displayRoutes);
+app.use("/api/heartbeat", heartbeatRoutes); // ✅ NOUVEAU - Route heartbeat
 
 // Compatibilité ESP32 (anciennes URLs)
 app.use("/events", eventRoutes);
@@ -104,9 +106,17 @@ app.use((req, res) => {
 const PORT = process.env.PORT || 5001;
 
 const server = app.listen(PORT, "0.0.0.0", () => {
-  console.log(`🚀 Serveur lancé sur le port ${PORT}`);
-  console.log(`📍 Accessible via http://localhost:${PORT}`);
-  console.log(`🔑 Auth: X-API-Key = ${process.env.API_KEY || "dev-local-key"}`);
+  console.log("=".repeat(60));
+  console.log(`🚀 Backend Boite'Alerte v1.1.0 - Phase 1 Stats enrichies`);
+  console.log("=".repeat(60));
+  console.log(`📍 Serveur    : http://localhost:${PORT}`);
+  console.log(`🔑 Auth       : X-API-Key = ${process.env.API_KEY || "dev-local-key"}`);
+  console.log(`✅ Endpoints  :`);
+  console.log(`   POST   /api/events      - Recevoir événements (enrichis)`);
+  console.log(`   POST   /api/heartbeat   - Recevoir heartbeat ESP32 (nouveau)`);
+  console.log(`   GET    /api/heartbeat/latest?deviceID=xxx`);
+  console.log(`   GET    /api/heartbeat/history?deviceID=xxx&limit=20`);
+  console.log("=".repeat(60));
 });
 
 // ========== SERVEUR WEBSOCKET ==========

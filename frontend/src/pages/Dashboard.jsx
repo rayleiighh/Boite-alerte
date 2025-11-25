@@ -22,6 +22,9 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import DeviceStatus from "../components/DeviceStatus";
+
+
 
 export function Dashboard({ mailboxStatus, lastActivity, onViewDetails }) {
   // Mock data for charts
@@ -522,8 +525,16 @@ export function Dashboard({ mailboxStatus, lastActivity, onViewDetails }) {
                 </Button>
               </motion.div>
             </Card>
-
+            
+            <div className="p-6 space-y-6">
+              {/* Indicateur connexion ESP32 en haut */}
+              <DeviceStatus deviceID="esp32-mailbox-001" />
+              
+              {/* Reste du contenu */}
+              {/* ... */}
+            </div>
             {/* Last Activity */}
+            
             {lastActivity && (
               <motion.div
                 initial={{ y: 20, opacity: 0 }}
