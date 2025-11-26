@@ -1,11 +1,7 @@
 import { useState } from "react";
-import { deleteEvent } from "../services/events";
-import ConfirmModal from "./ConfirmModal";
-import { Trash2, Weight, Wifi, Zap, Battery, Activity } from "lucide-react";
+import { Weight, Wifi, Zap, Battery, Activity } from "lucide-react";
 
-export default function EventItemRow({ e, onDelete }) {
-  const [confirmOpen, setConfirmOpen] = useState(false);
-  const [deleting, setDeleting] = useState(false);
+export default function EventItemRow({ e }) {
   const [expanded, setExpanded] = useState(false);
 
   const formatDate = (d) =>
@@ -16,19 +12,6 @@ export default function EventItemRow({ e, onDelete }) {
       hour: "2-digit",
       minute: "2-digit",
     });
-
-  const handleDeleteConfirm = async () => {
-    try {
-      setDeleting(true);
-      await deleteEvent(e._id);
-      onDelete && onDelete(e._id);
-    } catch (err) {
-      console.error("Erreur lors de la suppression :", err);
-    } finally {
-      setDeleting(false);
-      setConfirmOpen(false);
-    }
-  };
 
   // ========== Formatage stats enrichies ==========
   
@@ -70,6 +53,7 @@ export default function EventItemRow({ e, onDelete }) {
         </td>
         <td className="py-3 px-4">{formatDate(e.timestamp)}</td>
         <td className="py-3 px-4">{e.deviceID || "—"}</td>
+<<<<<<< HEAD
 
         {/* Colonne ACTION - Uniquement bouton supprimer */}
         <td className="py-3 px-4 text-right">
@@ -85,12 +69,14 @@ export default function EventItemRow({ e, onDelete }) {
             <Trash2 className="w-5 h-5" strokeWidth={2} />
           </button>
         </td>
+=======
+>>>>>>> ac70875b2765a04d09147f7c3026967ba3af7f4d
       </tr>
 
       {/* Ligne détails expandables */}
       {expanded && hasEnrichedData && (
         <tr className="bg-slate-50">
-          <td colSpan="5" className="py-4 px-6">
+          <td colSpan="3" className="py-4 px-6">
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
               
               {/* Poids */}
@@ -176,14 +162,6 @@ export default function EventItemRow({ e, onDelete }) {
           </td>
         </tr>
       )}
-
-      {/* Modale de confirmation suppression */}
-      <ConfirmModal
-        open={confirmOpen}
-        onCancel={() => setConfirmOpen(false)}
-        onConfirm={handleDeleteConfirm}
-        message="Voulez-vous vraiment supprimer cet événement ?"
-      />
     </>
   );
 }
