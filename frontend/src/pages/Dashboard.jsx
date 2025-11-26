@@ -1,16 +1,10 @@
-import {
-  Mail,
-  Package,
-  CheckCircle,
-  AlertCircle,
-  Sparkles,
-  TrendingUp,
-  Calendar,
-} from "lucide-react";
 import { Button } from "../components/button";
 import { Card } from "../components/card";
 import { Badge } from "../components/badge";
 import { motion } from "framer-motion";
+import DeviceStatus from "../components/DeviceStatus";
+import { useDashboardData } from "../hooks/useDashboardData";
+
 import {
   AreaChart,
   Area,
@@ -22,28 +16,31 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import DeviceStatus from "../components/DeviceStatus";
 
+import {
+  Mail,
+  Package,
+  CheckCircle,
+  AlertCircle,
+  Sparkles,
+  TrendingUp,
+  Calendar,
+} from "lucide-react";
 
+export function Dashboard({ onViewDetails }) { 
 
-export function Dashboard({ mailboxStatus, lastActivity, onViewDetails }) {
-  // Mock data for charts
-  const weeklyData = [
-    { day: "Lun", courriers: 2, colis: 1 },
-    { day: "Mar", courriers: 1, colis: 0 },
-    { day: "Mer", courriers: 3, colis: 1 },
-    { day: "Jeu", courriers: 2, colis: 2 },
-    { day: "Ven", courriers: 4, colis: 1 },
-    { day: "Sam", courriers: 1, colis: 0 },
-    { day: "Dim", courriers: 0, colis: 1 },
-  ];
-
-  const monthlyData = [
-    { name: "Sem 1", total: 8 },
-    { name: "Sem 2", total: 12 },
-    { name: "Sem 3", total: 10 },
-    { name: "Sem 4", total: 15 },
-  ];
+  const { 
+    mailboxStatus, 
+    lastActivity, 
+    weeklyData, 
+    monthlyData, 
+    weeklyTotalMail, 
+    weeklyTotalPackage,
+    monthlyTotal,
+    deviceOnline,
+    isLoading,
+    error 
+  } = useDashboardData();
 
   const getStatusInfo = () => {
     switch (mailboxStatus) {
@@ -397,7 +394,7 @@ export function Dashboard({ mailboxStatus, lastActivity, onViewDetails }) {
                   <p className="text-xs text-muted-foreground">
                     Total ce mois:{" "}
                     <span className="font-semibold text-indigo-600">
-                      45 items
+                      {monthlyTotal} items
                     </span>
                   </p>
                 </div>
@@ -489,7 +486,7 @@ export function Dashboard({ mailboxStatus, lastActivity, onViewDetails }) {
                 <div className="mt-2 text-center">
                   <p className="text-[10px] text-muted-foreground">
                     <span className="font-semibold text-indigo-600">
-                      45 items
+                      {monthlyTotal} items
                     </span>
                   </p>
                 </div>
@@ -563,11 +560,11 @@ export function Dashboard({ mailboxStatus, lastActivity, onViewDetails }) {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">Courriers</span>
-                    <span className="text-green-700 font-semibold">5</span>
+                    <span className="text-green-700 font-semibold">{weeklyTotalMail}</span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">Colis</span>
-                    <span className="text-green-700 font-semibold">2</span>
+                    <span className="text-green-700 font-semibold">{weeklyTotalPackage}</span>
                   </div>
                 </div>
               </Card>

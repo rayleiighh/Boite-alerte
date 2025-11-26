@@ -249,3 +249,131 @@ exports.deleteEvent = async (req, res) => {
     res.status(500).json({ error: "❌ Erreur serveur : " + err.message });
   }
 };
+
+// ========== GET /api/events/summary ==========
+exports.getEventSummary = async (req, res) => {
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Début du jour
+
+    // --- 1. Statistiques hebdomadaires (pour BarChart) ---
+    const sevenDaysAgo = new Date(today);
+    sevenDaysAgo.setDate(today.getDate() - 7);
+
+    const weeklyAggregation = await Event.aggregate([
+      {
+        $match: {
+          timestamp: { $gte: sevenDaysAgo },
+          // Filtre les types d'événements considérés comme du contenu
+          type: { $in: ["courrier", "mail_received", "colis", "package_received"] }
+        },
+      },
+      {
+        $group: {
+          _id: { $dateToString: { format: "%w", date: "$timestamp" } }, // Regrouper par jour de la semaine (0=Dim, 6=Sam)
+          courriers: {
+            $sum: {
+              $cond: [
+                { $in: ["$type", ["courrier", "mail_received"]] },
+                1,
+                0,
+              ],
+            },
+          },
+          colis: {
+            $sum: {
+              $cond: [
+                { $in: ["$type", ["colis", "package_received"]] },
+                1,
+                0,
+              ],
+            },
+          },
+        },
+      },
+      { $sort: { _id: 1 } }, // Trie par jour de la semaine
+    ]);
+
+    const days = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
+    let weeklyData = days.map((day, index) => ({
+      day,
+      courriers: 0,
+      colis: 0,
+    }));
+
+    // Mapping des résultats et ajustement de l'ordre pour commencer par Lundi
+    weeklyAggregation.forEach((item) => {
+      const dayIndex = parseInt(item._id);
+      weeklyData[dayIndex] = {
+        day: days[dayIndex],
+        courriers: item.courriers,
+        colis: item.colis,
+      };
+    });
+    
+    // Rotation: [Dim, Lun, ..., Sam] -> [Lun, ..., Sam, Dim]
+    weeklyData = weeklyData.slice(1).concat(weeklyData.slice(0, 1));
+    
+    const weeklyTotalMail = weeklyAggregation.reduce((acc, curr) => acc + curr.courriers, 0);
+    const weeklyTotalPackage = weeklyAggregation.reduce((acc, curr) => acc + curr.colis, 0);
+
+    // --- 2. Statistiques mensuelles (pour AreaChart) ---
+    const oneMonthAgo = new Date(today);
+    oneMonthAgo.setDate(today.getDate() - 30);
+    
+    const weekNames = ["Sem 1", "Sem 2", "Sem 3", "Sem 4"];
+
+    const monthlyAggregation = await Event.aggregate([
+      {
+        $match: {
+          timestamp: { $gte: oneMonthAgo },
+          type: { $in: ["courrier", "mail_received", "colis", "package_received"] }
+        },
+      },
+      {
+        $group: {
+          _id: {
+            // Groupement par semaine du mois (1 à 4)
+            $ceil: { $divide: [{ $dayOfMonth: "$timestamp" }, 7] },
+          },
+          total: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]);
+
+    let monthlyData = [1, 2, 3, 4].map((weekNum) => ({
+      name: weekNames[weekNum - 1],
+      total: 0,
+    }));
+
+    monthlyAggregation.forEach((item) => {
+        const weekIndex = item._id - 1;
+        if(weekIndex >= 0 && weekIndex < 4) {
+             monthlyData[weekIndex].total = item.total;
+        }
+    });
+
+    const monthlyTotal = monthlyAggregation.reduce((acc, curr) => acc + curr.total, 0);
+
+    // Envoi des données au frontend
+    res.json({
+      weeklyData,
+      monthlyData,
+      weeklyTotalMail,
+      weeklyTotalPackage,
+      monthlyTotal,
+    });
+  } catch (err) {
+    console.error("❌ [ERROR] getEventSummary:", err.message);
+    // En cas d'erreur DB, renvoyer une structure vide et un statut 500
+    res.status(500).json({ 
+        error: "❌ Erreur serveur lors de l'agrégation des données: " + err.message,
+        weeklyData: [],
+        monthlyData: [],
+        weeklyTotalMail: 0,
+        weeklyTotalPackage: 0,
+        monthlyTotal: 0,
+    });
+  }
+};

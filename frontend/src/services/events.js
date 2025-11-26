@@ -13,6 +13,30 @@ export async function fetchLatestEvent() {
   return res.data;
 }
 
+/**
+ * Récupère le statut du Heartbeat (connexion ESP32) pour un device spécifique.
+ * @param {string} deviceID - L'identifiant de l'appareil (ex: 'esp32-mailbox-001').
+ */
+export async function fetchHeartbeatStatus(deviceID) {
+  // Appel à GET /api/heartbeat/latest?deviceID=...
+  const res = await API.get("/heartbeat/latest", {
+    params: {
+      deviceID: deviceID,
+    },
+  });
+  return res.data;
+}
+
+/**
+ * Récupère les données agrégées pour les graphiques (weeklyData, monthlyData).
+ * Appel à GET /api/events/summary
+ */
+export async function fetchEventSummary() {
+  const res = await API.get("/events/summary");
+  // Le backend renvoie déjà un objet JSON complet (weeklyData, monthlyData, totals)
+  return res.data; 
+}
+
 // Récupérer les événements avec pagination & filtres
 export async function fetchEvents(filters = {}) {
   const params = {
@@ -29,6 +53,7 @@ export async function fetchEvents(filters = {}) {
   return {
     items: res.data.events,
     total: res.data.total,
+    totalPages: res.data.totalPages,
   };
 }
 
