@@ -30,8 +30,8 @@ export function useDashboardData(options = {}) {
     // Données des graphiques (Mocks temporaires jusqu'à l'implémentation du backend)
     weeklyData: [],
     monthlyData: [],
-    weeklyTotalMail: 0,
-    weeklyTotalPackage: 0,
+    // CORRECTION: Remplacement des anciennes variables par la nouvelle
+    weeklyTotalItems: 0, 
     monthlyTotal: 0,
   });
   
@@ -70,14 +70,17 @@ export function useDashboardData(options = {}) {
       const heartbeatData = await fetchHeartbeatStatus(deviceID);
       
       // --- 3. Fetch des données de résumé pour les charts ---
+      // L'API renvoie maintenant { weeklyData, monthlyData, weeklyTotalItems, monthlyTotal }
       const summaryData = await fetchEventSummary();
       
       // --- Combinaison et formatage des données ---
       
-      // a) Statut de la boîte (du Event Controller)
-      const mailboxStatus = latestEventData.status || "empty";
+      // a) Statut de la boîte (MIS À JOUR vers "item" si non "empty")
+      const mailboxStatus = (latestEventData.status === "mail" || latestEventData.status === "package" || latestEventData.status === "both" || latestEventData.status === "item")
+        ? "item" 
+        : "empty";
       
-      // b) Message/Dernière activité (du Event Controller ou Heartbeat)
+      // b) Message/Dernière activité (inchangé)
       let lastActivity;
       if (latestEventData.hasEvent) {
           // Utilise le timestamp réel de l'événement pour la dernière activité
@@ -99,8 +102,8 @@ export function useDashboardData(options = {}) {
         // Données agrégées pour les graphiques
         weeklyData: summaryData.weeklyData || [],
         monthlyData: summaryData.monthlyData || [],
-        weeklyTotalMail: summaryData.weeklyTotalMail || 0,
-        weeklyTotalPackage: summaryData.weeklyTotalPackage || 0,
+        // CORRECTION: Utilisation de la nouvelle variable de l'API
+        weeklyTotalItems: summaryData.weeklyTotalItems || 0, 
         monthlyTotal: summaryData.monthlyTotal || 0,
       });
 
@@ -112,7 +115,7 @@ export function useDashboardData(options = {}) {
       console.error("Erreur lors du chargement des données du dashboard:", err);
 
       setData(prev => ({
-        ...prev, // Conserve les données des charts si elles ont été chargées
+        ...prev, 
         mailboxStatus: "error", // Utiliser un statut pour afficher l'erreur
         lastActivity: "Erreur de connexion - Vérifiez le backend.",
         deviceOnline: false,
@@ -123,8 +126,7 @@ export function useDashboardData(options = {}) {
     }
   }, [deviceID, formatLastActivity]);
   
-  // Reste du code du hook inchangé (WebSocket/Polling/Cleanup)
-  
+  // Le reste du hook (initWebSocket, startPolling, useEffects, refresh) est inchangé.
   // WebSocket pour les mises à jour en temps réel (Inchangé)
   const initWebSocket = useCallback(() => {
     // ... (Logique WebSocket inchangée) ...
@@ -174,7 +176,7 @@ export function useDashboardData(options = {}) {
 
   // Rendu des données
   return {
-    ...data, // Retourne toutes les données (status, lastActivity, charts data)
+    ...data, // Retourne toutes les données (inclut maintenant weeklyTotalItems)
     loading,
     error,
     connectionStatus,
