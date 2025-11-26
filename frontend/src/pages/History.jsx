@@ -47,6 +47,12 @@ export default function HistoryPage() {
     load();
   }, [filters, page]);
 
+  // Handler appelé par EventItemRow (DESKTOP) après suppression réussie
+  const handleRowDeleted = (deletedId) => {
+    setItems((prev) => prev.filter((ev) => ev._id !== deletedId));
+    setTotal((prev) => Math.max(0, prev - 1));
+  };
+
   // --- Flux MOBILE : ouvrir la modale
   const openMobileConfirm = (event) => {
     setMobileEventToDelete(event);
@@ -98,24 +104,25 @@ export default function HistoryPage() {
                   <th className="py-3 px-4 text-left">Type</th>
                   <th className="py-3 px-4 text-left">Date</th>
                   <th className="py-3 px-4 text-left">Device</th>
+                  <th className="py-3 px-4 text-right">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200 text-slate-600">
                 {loading ? (
                   <tr>
-                    <td colSpan={3} className="py-6 text-center">
+                    <td colSpan={4} className="py-6 text-center">
                       Chargement…
                     </td>
                   </tr>
                 ) : error ? (
                   <tr>
-                    <td colSpan={3} className="py-6 text-center text-red-500">
+                    <td colSpan={4} className="py-6 text-center text-red-500">
                       {error}
                     </td>
                   </tr>
                 ) : items.length === 0 ? (
                   <tr>
-                    <td colSpan={3} className="py-6 text-center text-slate-500">
+                    <td colSpan={4} className="py-6 text-center text-slate-500">
                       Aucun événement
                     </td>
                   </tr>
@@ -124,6 +131,7 @@ export default function HistoryPage() {
                     <EventItemRow
                       key={i}
                       e={e}
+                      onDelete={handleRowDeleted}
                     />
                   ))
                 )}
