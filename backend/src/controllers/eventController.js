@@ -107,19 +107,19 @@ exports.addEvent = async (req, res) => {
 
 // ========== GET /api/events/latest ==========
 exports.getLatestEvent = async (req, res) => {
-  try {
-    const latestEvent = await Event.findOne().sort({ createdAt: -1 });
+    try {
+        const latestEvent = await Event.findOne().sort({ createdAt: -1 });
 
-    if (!latestEvent) {
-      return res.json({
-        hasEvent: false,
-        status: "empty",
-        message: "Aucun courrier détecté",
-      });
-    }
+        if (!latestEvent) {
+            return res.json({
+                hasEvent: false,
+                status: "empty",
+                message: "Aucun élément détecté", // Texte mis à jour
+            });
+        }
 
-    let status = "empty";
-    let message = "";
+        let status = "empty";
+        let message = "";
 
     const dateOptions = {
       timeZone: "Europe/Brussels",
@@ -135,26 +135,24 @@ exports.getLatestEvent = async (req, res) => {
 
     const localDate = latestEvent.timestamp.toLocaleDateString("fr-FR", dateOptions);
     const localTime = latestEvent.timestamp.toLocaleTimeString("fr-FR", timeOptions);
-
+    
     switch (latestEvent.type) {
-      case "mail_received":
-      case "courrier":
-        status = "mail";
-        message = `Courrier reçu le ${localDate} à ${localTime}`;
-        break;
-      case "package_received":
-      case "colis":
-        status = "package";
-        message = `Colis reçu le ${localDate} à ${localTime}`;
-        break;
-      case "box_opened":
-      case "ouverture":
-        status = "empty";
-        message = `Boîte ouverte le ${localDate} à ${localTime}`;
-        break;
-      default:
-        status = "empty";
-        message = `Dernier événement le ${localDate} à ${localTime}`;
+        case "received_item":
+        case "mail_received":
+        case "courrier":
+        case "package_received":
+        case "colis":
+            status = "item"; // Statut unique pour le frontend
+            message = `Nouvel élément reçu le ${localDate} à ${localTime}`;
+            break;
+        case "box_opened":
+        case "ouverture":
+            status = "empty";
+            message = `Boîte ouverte le ${localDate} à ${localTime}`;
+            break;
+        default:
+            status = "empty";
+            message = `Dernier événement le ${localDate} à ${localTime}`;
     }
 
     res.json({
@@ -165,7 +163,6 @@ exports.getLatestEvent = async (req, res) => {
         type: latestEvent.type,
         timestamp: latestEvent.timestamp,
         deviceID: latestEvent.deviceID,
-        // Inclure stats enrichies si disponibles
         weight_g: latestEvent.weight_g,
         rssi: latestEvent.rssi,
         beam_state: latestEvent.beam_state,
@@ -248,4 +245,114 @@ exports.deleteEvent = async (req, res) => {
     console.error("❌ [ERROR] deleteEvent:", err.message);
     res.status(500).json({ error: "❌ Erreur serveur : " + err.message });
   }
+};
+
+// ========== GET /api/events/summary ==========
+exports.getEventSummary = async (req, res) => {
+    try {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        // Définition de tous les types d'événements de réception pour assurer la rétrocompatibilité
+        const RECEPTION_TYPES = ["received_item", "courrier", "mail_received", "colis", "package_received"];
+
+        // --- 1. Statistiques hebdomadaires (pour BarChart) ---
+        const sevenDaysAgo = new Date(today);
+        sevenDaysAgo.setDate(today.getDate() - 7);
+
+        const weeklyAggregation = await Event.aggregate([
+            {
+                $match: {
+                    timestamp: { $gte: sevenDaysAgo },
+                    type: { $in: RECEPTION_TYPES } // On matche tous les types de réception
+                },
+            },
+            {
+                $group: {
+                    _id: { $dateToString: { format: "%w", date: "$timestamp" } },
+                    // CONSOLIDATION : Un seul champ pour le total d'éléments
+                    totalItems: { $sum: 1 }, 
+                },
+            },
+            { $sort: { _id: 1 } },
+        ]);
+
+        const days = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
+        let weeklyData = days.map((day, index) => ({
+            day,
+            totalItems: 0, // Nouveau champ dans le format de sortie
+        }));
+
+        // Mapping des résultats et ajustement de l'ordre pour commencer par Lundi
+        weeklyAggregation.forEach((item) => {
+            const dayIndex = parseInt(item._id);
+            weeklyData[dayIndex] = {
+                day: days[dayIndex],
+                totalItems: item.totalItems,
+            };
+        });
+        
+        // Rotation: [Dim, Lun, ..., Sam] -> [Lun, ..., Sam, Dim]
+        weeklyData = weeklyData.slice(1).concat(weeklyData.slice(0, 1));
+        
+        // Nouveau total unifié
+        const weeklyTotalItems = weeklyAggregation.reduce((acc, curr) => acc + curr.totalItems, 0);
+        // Suppression de weeklyTotalMail et weeklyTotalPackage
+        
+        // --- 2. Statistiques mensuelles (pour AreaChart) ---
+        const oneMonthAgo = new Date(today);
+        oneMonthAgo.setDate(today.getDate() - 30);
+        
+        const weekNames = ["Sem 1", "Sem 2", "Sem 3", "Sem 4"];
+
+        const monthlyAggregation = await Event.aggregate([
+            {
+                $match: {
+                    timestamp: { $gte: oneMonthAgo },
+                    type: { $in: RECEPTION_TYPES } // On matche tous les types de réception
+                },
+            },
+            {
+                $group: {
+                    _id: {
+                        $ceil: { $divide: [{ $dayOfMonth: "$timestamp" }, 7] },
+                    },
+                    total: { $sum: 1 },
+                },
+            },
+            { $sort: { _id: 1 } },
+        ]);
+
+        let monthlyData = [1, 2, 3, 4].map((weekNum) => ({
+            name: weekNames[weekNum - 1],
+            total: 0,
+        }));
+
+        monthlyAggregation.forEach((item) => {
+            const weekIndex = item._id - 1;
+            if(weekIndex >= 0 && weekIndex < 4) {
+                 monthlyData[weekIndex].total = item.total;
+            }
+        });
+
+        const monthlyTotal = monthlyAggregation.reduce((acc, curr) => acc + curr.total, 0);
+
+        // Envoi des données au frontend
+        res.json({
+            // Mise à jour de la structure de réponse
+            weeklyData: weeklyData.map(d => ({ day: d.day, total: d.totalItems })), // On utilise 'total' pour simplifier BarChart
+            monthlyData,
+            weeklyTotalItems, // Nouveau champ unique
+            monthlyTotal,
+        });
+    } catch (err) {
+        console.error("❌ [ERROR] getEventSummary:", err.message);
+        res.status(500).json({
+            error: "❌ Erreur serveur lors de l'agrégation des données: " + err.message,
+            weeklyData: [],
+            monthlyData: [],
+            weeklyTotalItems: 0, // Renvoie le champ attendu même en cas d'erreur
+            monthlyTotal: 0,
+        });
+    }
 };
