@@ -13,8 +13,8 @@ export function DashboardContainer() {
     connectionStatus,
     refresh,
   } = useDashboardData({
-    refreshInterval: 30000, // 30 secondes
-    enableWebSocket: false, // WebSocket désactivé (pas encore implémenté côté backend)
+    refreshInterval: 30000, // 30 secondes (Polling conservé en arrière-plan)
+    enableWebSocket: false, // WebSocket désactivé
   });
 
   const handleViewDetails = () => {
@@ -22,7 +22,7 @@ export function DashboardContainer() {
     console.log("Navigating to details page...");
   };
 
-  // Fonction pour obtenir l'icône et le style du statut de connexion
+  // Fonction pour obtenir l'icône et le style du statut de connexion (Fonction conservée pour le Loading Screen)
   const getConnectionInfo = () => {
     switch (connectionStatus) {
       case "connected":
@@ -32,10 +32,10 @@ export function DashboardContainer() {
           variant: "default",
           className: "bg-green-100 text-green-700",
         };
-      case "disconnected":
+      case "disconnected": 
         return {
           icon: Clock,
-          text: "Polling",
+          text: "Synchronisé", 
           variant: "secondary",
           className: "bg-blue-100 text-blue-700",
         };
@@ -51,9 +51,10 @@ export function DashboardContainer() {
   };
 
   const connectionInfo = getConnectionInfo();
-  const ConnectionIcon = connectionInfo.icon;
+  // ConnectionIcon n'est plus utilisé en dehors du bloc 'loading'
+  // const ConnectionIcon = connectionInfo.icon; 
 
-  // Écran de chargement
+  // Écran de chargement (Conserve l'indicateur de chargement)
   if (loading) {
     return (
       <div className="p-6 space-y-6">
@@ -80,20 +81,21 @@ export function DashboardContainer() {
 
   return (
     <div className="space-y-4">
-      {/* Header avec statut de connexion et bouton refresh */}
+      {/* Header avec bouton refresh */}
       <div className="px-6 pt-6 flex items-center justify-between">
+        
+        {/* MODIFICATION: La div qui contenait la Badge de connexion est simplifiée */}
         <div className="flex items-center gap-3">
-          <Badge className={connectionInfo.className}>
-            <ConnectionIcon className="w-3 h-3 mr-1" />
-            {connectionInfo.text}
-          </Badge>
+          
+          {/* Affichage de l'erreur maintenu */}
           {error && (
             <Badge variant="destructive">
               <AlertTriangle className="w-3 h-3 mr-1" />
-              Erreur
+              Erreur de connexion
             </Badge>
           )}
         </div>
+        {/* FIN DE LA MODIFICATION */}
 
         <Button
           onClick={refresh}
