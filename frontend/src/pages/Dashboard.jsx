@@ -235,7 +235,11 @@ export function Dashboard({ onViewDetails }) {
                       dataKey="day"
                       tick={{ fill: "#64748b", fontSize: 12 }}
                     />
-                    <YAxis tick={{ fill: "#64748b", fontSize: 12 }} />
+                    <YAxis 
+                      tick={{ fill: "#64748b", fontSize: 12 }}
+                      domain={[0, 'auto']} 
+                      allowDecimals={false} 
+                    />
                     <Tooltip
                       contentStyle={{
                         backgroundColor: "white",
@@ -287,7 +291,11 @@ export function Dashboard({ onViewDetails }) {
                       dataKey="name"
                       tick={{ fill: "#64748b", fontSize: 12 }}
                     />
-                    <YAxis tick={{ fill: "#64748b", fontSize: 12 }} />
+                    <YAxis 
+                      tick={{ fill: "#64748b", fontSize: 12 }}
+                      domain={[0, 'auto']} 
+                      allowDecimals={false} 
+                    />
                     <Tooltip
                       contentStyle={{
                         backgroundColor: "white",
