@@ -6,6 +6,7 @@ import {
   deleteOne,
   subscribeRealtime,
 } from "../services/notifications.api.js";
+import PreferencesModal from "../components/PreferencesModal.jsx";
 import "./Notifications.css";
 
 // icônes simples inline (évite d'ajouter des deps)
@@ -43,6 +44,16 @@ const Icon = {
       <path d="M12 7v5l3 2" stroke="currentColor" strokeWidth="1.8" />
     </svg>
   ),
+  settings: (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.8" />
+      <path
+        d="M12 1v6m0 6v6M23 12h-6m-6 0H1"
+        stroke="currentColor"
+        strokeWidth="1.8"
+      />
+    </svg>
+  ),
 };
 
 const TYPE_LABEL = { mail: "Courrier", package: "Colis", alert: "Alerte" };
@@ -55,10 +66,18 @@ const TYPE_COLOR = {
 
 export default function Notifications() {
   const [items, setItems] = useState([]);
-  const [filter, setFilter] = useState("all"); // all | unread | mail | package | alert
+  const [filter, setFilter] = useState("all");
   const [q, setQ] = useState("");
   const [socketStatus, setSocketStatus] = useState("connecting");
+  const [modalOpen, setModalOpen] = useState(false); // ✅ État de la modale
+  const [isSubscribed, setIsSubscribed] = useState(false); // ✅ État d'inscription
   const subRef = useRef(null);
+
+  // Vérifie si l'utilisateur est inscrit au chargement
+  useEffect(() => {
+    const subscribed = localStorage.getItem("isSubscribed") === "true";
+    setIsSubscribed(subscribed);
+  }, [modalOpen]); // Re-vérifie après fermeture de la modale
 
   // Chargement initial
   useEffect(() => {
@@ -92,7 +111,7 @@ export default function Notifications() {
           n.title.toLowerCase().includes(s) ||
           n.description.toLowerCase().includes(s) ||
           (TYPE_LABEL[n.type] || "").toLowerCase().includes(s) ||
-          (n.time || "").toLowerCase().includes(s),
+          (n.time || "").toLowerCase().includes(s)
       );
     }
     return arr;
@@ -102,13 +121,15 @@ export default function Notifications() {
     const ok = await markAllRead();
     if (ok) setItems((prev) => prev.map((n) => ({ ...n, isNew: false })));
   };
+
   const onMarkOne = async (id) => {
     const ok = await markOneRead(id);
     if (ok)
       setItems((prev) =>
-        prev.map((n) => (n.id === id ? { ...n, isNew: false } : n)),
+        prev.map((n) => (n.id === id ? { ...n, isNew: false } : n))
       );
   };
+
   const onDelete = async (id) => {
     const ok = await deleteOne(id);
     if (ok) setItems((prev) => prev.filter((n) => n.id !== id));
@@ -128,6 +149,23 @@ export default function Notifications() {
           <span className={`socket ${socketStatus}`}>
             Temps réel: {socketStatus}
           </span>
+
+          {/* ✅ Indicateur d'inscription */}
+          {isSubscribed && (
+            <span className="subscription-badge">
+               Email activé
+            </span>
+          )}
+
+          {/* ✅ Bouton Préférences */}
+          <button
+            className="btn-preferences"
+            onClick={() => setModalOpen(true)}
+            title="Gérer les notifications par email"
+          >
+            {Icon.settings}
+            <span>Préférences email</span>
+          </button>
         </div>
       </div>
 
@@ -170,7 +208,7 @@ export default function Notifications() {
               {Icon.clock}
             </div>
             <h3>Aucune notification</h3>
-            <p>Vous serez alerté dès qu’un courrier ou un colis arrive.</p>
+            <p>Vous serez alerté dès qu'un courrier ou un colis arrive.</p>
           </div>
         ) : (
           filtered.map((n) => (
@@ -223,6 +261,9 @@ export default function Notifications() {
           ))
         )}
       </div>
+
+      {/* ✅ Modale de préférences */}
+      <PreferencesModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
     </section>
   );
 }

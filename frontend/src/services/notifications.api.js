@@ -53,17 +53,12 @@ export async function getNotifications() {
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const data = await r.json();
 
-    // Vérifie que le backend renvoie bien un tableau
     if (!Array.isArray(data)) {
-      console.warn("⚠️ Le backend n'a pas renvoyé un tableau, données ignorées.");
       return [];
     }
 
-    console.log("✅ Notifications reçues:", data);
     return data;
   } catch (err) {
-    console.error("❌ Erreur fetch notifications:", err);
-    console.log("⚠️ Utilisation des données mockées (mode dégradé)");
     return mock();
   }
 }
@@ -76,7 +71,6 @@ export async function markAllRead() {
     });
     return r.ok;
   } catch (err) {
-    console.error("❌ Erreur markAllRead:", err);
     return false;
   }
 }
@@ -89,7 +83,6 @@ export async function markOneRead(id) {
     });
     return r.ok;
   } catch (err) {
-    console.error("❌ Erreur markOneRead:", err);
     return false;
   }
 }
@@ -102,7 +95,6 @@ export async function deleteOne(id) {
     });
     return r.ok;
   } catch (err) {
-    console.error("❌ Erreur deleteOne:", err);
     return false;
   }
 }
@@ -128,7 +120,7 @@ export function subscribeRealtime({ onOpen, onClose, onError, onMessage }) {
       } catch {}
     });
   } catch (err) {
-    console.log("⚠️ WebSocket non disponible, notifications temps réel désactivées");
+    // Silencieux
   }
 
   return {

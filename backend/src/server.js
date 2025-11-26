@@ -1,24 +1,24 @@
 /***************************************************************************
  *
- *  Project Title : Boite-alerte
- *  Authors       : Nicolas H, ..., ..., ..., ...
- *  Description   : Access point of the backend application
- *  Date          : 27/09/2025
- *  Version       : [1.1.0] - Phase 1: Stats enrichies + Heartbeat
+ * Project Title : Boite-alerte
+ * Authors       : Nicolas H, Rayane B, Saad Z, Khasan A, Mohamed M
+ * Description   : Access point of the backend application
+ * Date          : 01/11/2025
+ * Version       : [1.1.0] - Stats enrichies + Heartbeat + Inscription email + WebSocket
  *
  ***************************************************************************/
 
-const express = require("express");
 const dotenv = require("dotenv");
+dotenv.config();
+const express = require("express");
 const cors = require("cors");
 const connectDB = require("./config/db");
 const eventRoutes = require("./routes/eventRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 const displayRoutes = require("./routes/displayRoutes");
-const heartbeatRoutes = require("./routes/heartbeatRoutes"); // ✅ NOUVEAU
+const heartbeatRoutes = require("./routes/heartbeatRoutes"); // ✅ NOUVEAU (Branche developp)
+const userRoutes = require("./routes/userRoutes"); // ✅ AJOUT (Branche feature)
 const { WebSocketServer } = require("ws");
-
-dotenv.config();
 
 const app = express();
 
@@ -27,7 +27,7 @@ const app = express();
 // 1. JSON parser
 app.use(express.json());
 
-// 2. CORS - ✅ Ajout des headers pour ESP32
+// 2. CORS - ✅ Headers pour ESP32 et frontend
 app.use(
   cors({
     origin: process.env.FRONTEND_URL || "http://localhost:5173",
@@ -44,7 +44,9 @@ app.use(
 
 // 3. Middleware d'authentification global
 const authMiddleware = (req, res, next) => {
-  if (req.path === "/" || req.path === "/health") return next();
+  // Routes publiques (pas d'auth requise)
+  const publicPaths = ["/", "/health"];
+  if (publicPaths.includes(req.path)) return next();
 
   const apiKey = req.headers["x-api-key"];
   const expectedKey = process.env.API_KEY || "dev-local-key";
@@ -88,7 +90,8 @@ app.get("/health", (req, res) => {
 app.use("/api/events", eventRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/display", displayRoutes);
-app.use("/api/heartbeat", heartbeatRoutes); // ✅ NOUVEAU - Route heartbeat
+app.use("/api/heartbeat", heartbeatRoutes); // ✅ Route heartbeat
+app.use("/api/users", userRoutes); // ✅ Gestion des inscriptions email
 
 // Compatibilité ESP32 (anciennes URLs)
 app.use("/events", eventRoutes);
@@ -99,6 +102,20 @@ app.use((req, res) => {
     error: "❌ Route non trouvée",
     path: req.path,
     method: req.method,
+    availableRoutes: [
+      "GET /",
+      "GET /health",
+      "GET /api/events",
+      "POST /api/events",
+      "GET /api/notifications",
+      "POST /api/notifications",
+      "GET /api/display",
+      "POST /api/heartbeat",
+      "GET /api/heartbeat/latest",
+      "POST /api/users/subscribe",
+      "POST /api/users/unsubscribe",
+      "GET /api/users"
+    ]
   });
 });
 
@@ -107,15 +124,15 @@ const PORT = process.env.PORT || 5001;
 
 const server = app.listen(PORT, "0.0.0.0", () => {
   console.log("=".repeat(60));
-  console.log(`🚀 Backend Boite'Alerte v1.1.0 - Phase 1 Stats enrichies`);
+  console.log(`🚀 Backend Boite'Alerte v1.1.0 - Stats, Heartbeat & Email/WS`);
   console.log("=".repeat(60));
   console.log(`📍 Serveur    : http://localhost:${PORT}`);
   console.log(`🔑 Auth       : X-API-Key = ${process.env.API_KEY || "dev-local-key"}`);
+  console.log(`📧 Email      : ${process.env.SMTP_USER || "non configuré"}`);
   console.log(`✅ Endpoints  :`);
-  console.log(`   POST   /api/events      - Recevoir événements (enrichis)`);
-  console.log(`   POST   /api/heartbeat   - Recevoir heartbeat ESP32 (nouveau)`);
-  console.log(`   GET    /api/heartbeat/latest?deviceID=xxx`);
-  console.log(`   GET    /api/heartbeat/history?deviceID=xxx&limit=20`);
+  console.log(`   POST   /api/events       - Recevoir événements (enrichis)`);
+  console.log(`   POST   /api/heartbeat    - Recevoir heartbeat ESP32`);
+  console.log(`   POST   /api/users        - Gestion utilisateurs`);
   console.log("=".repeat(60));
 });
 
@@ -124,14 +141,39 @@ const wss = new WebSocketServer({ server, path: "/ws" });
 
 wss.on("connection", (ws) => {
   console.log("🔌 Client WebSocket connecté");
+  
+  // Message de bienvenue
   ws.send(
     JSON.stringify({
       id: Date.now(),
       type: "mail",
       title: "Bienvenue 👋",
       description: "Connexion WebSocket établie avec succès",
-      time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      time: new Date().toLocaleTimeString("fr-FR", { 
+        hour: "2-digit", 
+        minute: "2-digit" 
+      }),
       isNew: true,
     })
   );
+
+  ws.on("close", () => {
+    console.log("🔌 Client WebSocket déconnecté");
+  });
+
+  ws.on("error", (error) => {
+    console.error("❌ Erreur WebSocket:", error.message);
+  });
 });
+
+// Broadcast fonction pour envoyer à tous les clients WebSocket
+wss.broadcast = (data) => {
+  wss.clients.forEach((client) => {
+    if (client.readyState === 1) { // OPEN
+      client.send(JSON.stringify(data));
+    }
+  });
+};
+
+// Export pour utiliser wss.broadcast() dans les controllers
+module.exports = { app, server, wss };

@@ -399,3 +399,61 @@ html, body {
     height: 16px;
   }
 }
+/* Bouton préférences email */
+.btn-preferences {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+  white-space: nowrap;
+}
+
+.btn-preferences:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+}
+
+.btn-preferences:active {
+  transform: translateY(0);
+}
+
+/* Badge d'inscription */
+.subscription-badge {
+  padding: 6px 12px;
+  background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+  color: #166534;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  border: 1px solid #86efac;
+}
+
+/* Responsive mobile */
+@media (max-width: 640px) {
+  .btn-preferences span {
+    display: none; /* Cache le texte sur mobile */
+  }
+
+  .btn-preferences {
+    padding: 8px;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    justify-content: center;
+  }
+
+  .subscription-badge {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+}

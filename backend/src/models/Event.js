@@ -18,8 +18,9 @@ const eventSchema = new mongoose.Schema(
   { timestamps: true }  // Ajoute createdAt et updatedAt automatiquement
 );
 
-// Index pour optimiser les requêtes par timestamp et deviceID
+// Index pour optimiser les requêtes
 eventSchema.index({ timestamp: -1 });
-eventSchema.index({ deviceID: 1 });
+eventSchema.index({ deviceID: 1 });   // Optimisation filtres par device (branche developp)
+eventSchema.index({ createdAt: -1 }); // Optimisation tri par insertion (branche feature)
 
 module.exports = mongoose.model("Event", eventSchema);
