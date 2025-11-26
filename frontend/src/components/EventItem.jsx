@@ -70,29 +70,8 @@ export default function EventItemRow({ e, onDelete }) {
         </td>
         <td className="py-3 px-4">{formatDate(e.timestamp)}</td>
         <td className="py-3 px-4">{e.deviceID || "—"}</td>
-        
-        {/* Stats enrichies rapides */}
-        <td className="py-3 px-4">
-          {hasEnrichedData ? (
-            <div className="flex gap-3 text-sm">
-              {e.weight_g !== null && (
-                <span className="flex items-center gap-1 text-slate-600">
-                  <Weight className="w-4 h-4" />
-                  {e.weight_g.toFixed(1)}g
-                </span>
-              )}
-              {e.rssi !== null && (
-                <span className={`flex items-center gap-1 ${wifiQuality.color}`}>
-                  <Wifi className="w-4 h-4" />
-                  {e.rssi} dBm
-                </span>
-              )}
-            </div>
-          ) : (
-            <span className="text-slate-400 text-sm">—</span>
-          )}
-        </td>
 
+        {/* Colonne ACTION - Uniquement bouton supprimer */}
         <td className="py-3 px-4 text-right">
           <button
             onClick={(ev) => {
