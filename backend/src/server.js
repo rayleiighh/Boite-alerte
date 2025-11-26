@@ -1,10 +1,10 @@
 /***************************************************************************
  *
- *  Project Title : Boite-alerte
- *  Authors       : Nicolas H, Rayane B, Saad Z, Khasan A, Mohamed M
- *  Description   : Access point of the backend application
- *  Date          : 01/11/2025
- *  Version       : [1.1.0] - Ajout système d'inscription email + WebSocket
+ * Project Title : Boite-alerte
+ * Authors       : Nicolas H, Rayane B, Saad Z, Khasan A, Mohamed M
+ * Description   : Access point of the backend application
+ * Date          : 01/11/2025
+ * Version       : [1.1.0] - Stats enrichies + Heartbeat + Inscription email + WebSocket
  *
  ***************************************************************************/
 
@@ -16,9 +16,9 @@ const connectDB = require("./config/db");
 const eventRoutes = require("./routes/eventRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 const displayRoutes = require("./routes/displayRoutes");
-const userRoutes = require("./routes/userRoutes"); // ✅ AJOUT
+const heartbeatRoutes = require("./routes/heartbeatRoutes"); // ✅ NOUVEAU (Branche developp)
+const userRoutes = require("./routes/userRoutes"); // ✅ AJOUT (Branche feature)
 const { WebSocketServer } = require("ws");
-
 
 const app = express();
 
@@ -90,7 +90,8 @@ app.get("/health", (req, res) => {
 app.use("/api/events", eventRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/display", displayRoutes);
-app.use("/api/users", userRoutes); // ✅ AJOUT - Gestion des inscriptions email
+app.use("/api/heartbeat", heartbeatRoutes); // ✅ Route heartbeat
+app.use("/api/users", userRoutes); // ✅ Gestion des inscriptions email
 
 // Compatibilité ESP32 (anciennes URLs)
 app.use("/events", eventRoutes);
@@ -109,6 +110,8 @@ app.use((req, res) => {
       "GET /api/notifications",
       "POST /api/notifications",
       "GET /api/display",
+      "POST /api/heartbeat",
+      "GET /api/heartbeat/latest",
       "POST /api/users/subscribe",
       "POST /api/users/unsubscribe",
       "GET /api/users"
@@ -120,10 +123,17 @@ app.use((req, res) => {
 const PORT = process.env.PORT || 5001;
 
 const server = app.listen(PORT, "0.0.0.0", () => {
-  console.log(`🚀 Serveur lancé sur le port ${PORT}`);
-  console.log(`📍 Accessible via http://localhost:${PORT}`);
-  console.log(`🔑 Auth: X-API-Key = ${process.env.API_KEY || "dev-local-key"}`);
-  console.log(`📧 Email: ${process.env.SMTP_USER || "non configuré"}`);
+  console.log("=".repeat(60));
+  console.log(`🚀 Backend Boite'Alerte v1.1.0 - Stats, Heartbeat & Email/WS`);
+  console.log("=".repeat(60));
+  console.log(`📍 Serveur    : http://localhost:${PORT}`);
+  console.log(`🔑 Auth       : X-API-Key = ${process.env.API_KEY || "dev-local-key"}`);
+  console.log(`📧 Email      : ${process.env.SMTP_USER || "non configuré"}`);
+  console.log(`✅ Endpoints  :`);
+  console.log(`   POST   /api/events       - Recevoir événements (enrichis)`);
+  console.log(`   POST   /api/heartbeat    - Recevoir heartbeat ESP32`);
+  console.log(`   POST   /api/users        - Gestion utilisateurs`);
+  console.log("=".repeat(60));
 });
 
 // ========== SERVEUR WEBSOCKET ==========

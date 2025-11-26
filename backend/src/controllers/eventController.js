@@ -13,17 +13,30 @@ setInterval(() => {
   }
 }, 10 * 60 * 1000);
 
-// ========== POST /api/events ==========
+// ========== POST /api/events (ENRICHI Phase 1) ==========
 exports.addEvent = async (req, res) => {
   try {
-    const { type, timestamp, deviceID } = req.body;
+    const { 
+      type, 
+      timestamp, 
+      deviceID,
+      // Nouveaux champs enrichis (optionnels pour rétrocompatibilité)
+      weight_g,
+      rssi,
+      beam_state,
+      uptime_s,
+      event_count,
+      battery_percent
+    } = req.body;
 
+    // Validation champs obligatoires
     if (!type || !timestamp || !deviceID) {
       return res.status(400).json({
         error: "Champs manquants : { type, timestamp, deviceID }",
       });
     }
 
+    // Idempotence check
     const idempotencyKey = req.headers["idempotency-key"];
     if (idempotencyKey && idempotencyCache.has(idempotencyKey)) {
       const cached = idempotencyCache.get(idempotencyKey);
@@ -35,14 +48,23 @@ exports.addEvent = async (req, res) => {
       });
     }
 
+    // Création événement avec stats enrichies
     const event = new Event({
       type,
       timestamp: new Date(timestamp),
       deviceID,
+      // Stats enrichies (Phase 1)
+      weight_g: weight_g !== undefined ? weight_g : null,
+      rssi: rssi !== undefined ? rssi : null,
+      beam_state: beam_state !== undefined ? beam_state : null,
+      uptime_s: uptime_s !== undefined ? uptime_s : null,
+      event_count: event_count !== undefined ? event_count : null,
+      battery_percent: battery_percent !== undefined ? battery_percent : null
     });
 
     await event.save();
 
+    // Logging enrichi
     const localTime = new Date(timestamp).toLocaleString("fr-BE", {
       timeZone: "Europe/Brussels",
       year: "numeric",
@@ -53,10 +75,19 @@ exports.addEvent = async (req, res) => {
       second: "2-digit",
     });
 
-    console.log(
-      `📬 [EVENT] Nouveau courrier : ${type} | ${deviceID} | ${localTime} (local)`
-    );
+    console.log("📬 [EVENT] ==========================================");
+    console.log(`  Type           : ${type}`);
+    console.log(`  Device         : ${deviceID}`);
+    console.log(`  Timestamp      : ${localTime} (Brussels)`);
+    console.log(`  Weight         : ${weight_g !== null ? weight_g.toFixed(2) + 'g' : 'N/A'}`);
+    console.log(`  WiFi Signal    : ${rssi !== null ? rssi + ' dBm' : 'N/A'}`);
+    console.log(`  IR Beam        : ${beam_state !== null ? (beam_state ? 'BLOCKED' : 'FREE') : 'N/A'}`);
+    console.log(`  Uptime         : ${uptime_s !== null ? Math.floor(uptime_s / 60) + 'min' : 'N/A'}`);
+    console.log(`  Event #        : ${event_count !== null ? event_count : 'N/A'}`);
+    console.log(`  Battery        : ${battery_percent !== null ? battery_percent + '%' : 'N/A'}`);
+    console.log("==================================================");
 
+    // Cache pour idempotence
     if (idempotencyKey) {
       idempotencyCache.set(idempotencyKey, {
         event,
@@ -134,6 +165,13 @@ exports.getLatestEvent = async (req, res) => {
         type: latestEvent.type,
         timestamp: latestEvent.timestamp,
         deviceID: latestEvent.deviceID,
+        // Inclure stats enrichies si disponibles
+        weight_g: latestEvent.weight_g,
+        rssi: latestEvent.rssi,
+        beam_state: latestEvent.beam_state,
+        uptime_s: latestEvent.uptime_s,
+        event_count: latestEvent.event_count,
+        battery_percent: latestEvent.battery_percent
       },
     });
   } catch (err) {
@@ -180,7 +218,6 @@ exports.getEvents = async (req, res) => {
       .skip(skip)
       .limit(limit);
 
-    // ✅ ajout du comptage total (developp)
     const total = await Event.countDocuments(filters);
 
     res.json({
