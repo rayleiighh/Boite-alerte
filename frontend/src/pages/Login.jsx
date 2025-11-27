@@ -1,4 +1,5 @@
 import { useState } from "react";
+import.meta.env.VITE_LOGIN
 
 export default function Login({ onLoginSuccess }) {
   const [username, setUsername] = useState("");
@@ -8,11 +9,10 @@ export default function Login({ onLoginSuccess }) {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Identifiants "statiques"
-    const ADMIN_USERNAME = "admin";
-    const ADMIN_PASSWORD = "1234";
+    const login = import.meta.env.VITE_LOGIN;
+    const mdp = import.meta.env.VITE_MDP;
 
-    if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+    if (username === login && password === mdp) {
       onLoginSuccess(); // rediriger vers Dashboard
     } else {
       setError("Identifiants incorrects");
