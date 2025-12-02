@@ -408,10 +408,10 @@ export function Dashboard({ onViewDetails }) {
             transition={{ delay: 0.5, duration: 0.3 }}
           >
 
-            <div className="p-6 space-y-6">
-              {/* Indicateur connexion ESP32 en haut (Inchangé) */}
-              <DeviceStatus deviceID="esp32-mailbox-001" />
-            </div>
+            
+            {/* Indicateur connexion ESP32 en haut (Inchangé) */}
+            <DeviceStatus deviceID="esp32-mailbox-001" />
+            
 
             {/* Last Activity (Inchangé) */}
             {lastActivity && (
