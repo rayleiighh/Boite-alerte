@@ -1,45 +1,17 @@
-import { useState, useEffect } from "react";
+// src/components/DeviceStatus.jsx (Modification)
+
 import { Wifi, WifiOff, Activity, Battery, Weight } from "lucide-react";
 
-export default function DeviceStatus({ deviceID = "esp32-mailbox-001" }) {
-  const [status, setStatus] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  // Polling toutes les 10s
-  useEffect(() => {
-    const fetchStatus = async () => {
-      try {
-        const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5001";
-        const response = await fetch(
-          `${API_URL}/api/heartbeat/latest?deviceID=${deviceID}`,
-          {
-            headers: {
-              "X-API-Key": import.meta.env.VITE_API_KEY || "dev-local-key",
-            },
-          }
-        );
-
-        if (response.ok) {
-          const data = await response.json();
-          setStatus(data);
-        }
-      } catch (error) {
-        console.error("Erreur fetch status:", error);
-        setStatus({ connected: false });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchStatus();
-    const interval = setInterval(fetchStatus, 10000); // Toutes les 10s
-
-    return () => clearInterval(interval);
-  }, [deviceID]);
-
+// Le composant reçoit maintenant l'état du heartbeat via les props
+export default function DeviceStatus({ 
+  deviceID = "esp32-mailbox-001",
+  status, // Heartbeat complet: { connected, ageSeconds, heartbeat: {...} }
+  loading // État de chargement du hook parent
+}) {
+    
   if (loading) {
     return (
-      <div className="flex items-center gap-2 text-slate-400">
+      <div className="flex items-center gap-2 text-slate-400 p-4 bg-white rounded-lg shadow-md border border-slate-200">
         <div className="w-2 h-2 bg-slate-300 rounded-full animate-pulse" />
         <span className="text-sm">Vérification connexion...</span>
       </div>
@@ -93,7 +65,7 @@ export default function DeviceStatus({ deviceID = "esp32-mailbox-001" }) {
               <WifiOff className="w-6 h-6 text-red-500" />
               <div>
                 <div className="font-semibold text-slate-800">ESP32 Déconnecté</div>
-                <div className="text-xs text-slate-500">Aucun heartbeat reçu</div>
+                <div className="text-xs text-slate-500">Aucun heartbeat reçu (age: {ageSeconds}s)</div>
               </div>
             </>
           )}
