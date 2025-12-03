@@ -1,75 +1,34 @@
 const Event = require("../models/Event");
-const User = require("../models/User"); // ✅ AJOUT
+const Notification = require("../models/Notification"); 
+const User = require("../models/User");
 const { sendNotificationEmail } = require("../services/mailer");
 
-// Helpers de mapping pour convertir les types d'events en types de notifications
-const mapType = (t = "") => {
-  const x = t.toLowerCase();
-  if (x.includes("courrier")) return "mail";
-  if (x.includes("colis")) return "package";
-  if (x.includes("alerte")) return "alert";
-  return "mail";
-};
-
-// ✅ prettyTime amélioré - affiche correctement "Aujourd'hui", "Hier" ou la date
-const prettyTime = (dateLike) => {
-  const d = new Date(dateLike);
-  if (Number.isNaN(d.getTime())) return "";
-  
-  const now = new Date();
-  const sameDay = d.toDateString() === now.toDateString();
-
-  // Vérifie si c'était hier
-  const yesterday = new Date(now);
-  yesterday.setDate(now.getDate() - 1);
-  const wasYesterday = d.toDateString() === yesterday.toDateString();
-
-  const hh = String(d.getHours()).padStart(2, "0");
-  const mm = String(d.getMinutes()).padStart(2, "0");
-
-  if (sameDay) return `${hh}h${mm}`;
-  if (wasYesterday) return `Hier ${hh}h${mm}`;
-  
-  // Pour les dates plus anciennes : "12/10 14h30"
-  return d.toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit" }) + ` ${hh}h${mm}`;
-};
-
-// GET /api/notifications - Récupérer toutes les notifications depuis les events
+// GET /api/notifications - Récupère les notifications actives
 exports.getNotifications = async (req, res) => {
   try {
-    // ✅ Tri avec fallback sur createdAt
-    const events = await Event.find()
-      .sort({ timestamp: -1, createdAt: -1 })
+    const notifications = await Notification.find()
+      .sort({ timestamp: -1 })
       .limit(200)
       .lean();
 
-    // Transforme les events en format notifications pour le frontend
-    const formatted = events.map(ev => {
-      const t = mapType(ev.type);
-      const eventDate = new Date(ev.timestamp || ev.createdAt || Date.now());
-      
-      return {
-        id: String(ev._id),
-        type: t,
-        title: t === "package" ? "Colis détecté"
-             : t === "alert" ? "Alerte"
-             : "Nouvelle lettre reçue",
-        description: t === "package" ? "Colis en attente de récupération"
-                   : t === "alert" ? "Veuillez vérifier la boîte"
-                   : "Courrier standard déposé dans la boîte aux lettres",
-        time: prettyTime(eventDate),
-        isNew: (Date.now() - eventDate.getTime()) < 24 * 3600 * 1000,
-      };
-    });
+    const formatted = notifications.map(notif => ({
+      id: String(notif._id),
+      type: notif.type,
+      title: notif.title,
+      description: notif.description,
+      time: prettyTime(notif.timestamp),
+      timestamp: notif.timestamp,
+      isNew: notif.isNew,
+    }));
 
     res.json(formatted);
   } catch (err) {
-    console.error("[getNotifications] error:", err);
-    res.status(500).json({ error: "Erreur lors du chargement des notifications depuis les events" });
+    console.error("Erreur getNotifications:", err);
+    res.status(500).json({ error: "Erreur serveur" });
   }
 };
 
-// POST /api/notifications - Créer un nouvel event (appelé par l'ESP32)
+// POST /api/notifications - Créer un événement + notification
 exports.createNotification = async (req, res) => {
   try {
     const { type, timestamp, deviceID } = req.body;
@@ -80,24 +39,14 @@ exports.createNotification = async (req, res) => {
       });
     }
 
-    // Crée l'event
-    const event = new Event({
-      type,
-      timestamp: new Date(timestamp),
-      deviceID
-    });
-
-    await event.save();
-    console.log("✅ Event créé:", event._id);
-
-    // ✅ Mapping du type pour l'email
+    // Mapping du type
     const low = (type || "").toLowerCase();
     const notifType = low.includes("colis") ? "package" 
       : low.includes("alerte") ? "alert" 
       : "mail";
 
     const title = notifType === "package" ? "Colis détecté"
-      : notifType === "alert" ? "Alerte"
+      : notifType === "alert" ? "Alerte système"
       : "Nouvelle lettre reçue";
 
     const description = notifType === "package"
@@ -106,39 +55,74 @@ exports.createNotification = async (req, res) => {
       ? "Veuillez vérifier la boîte aux lettres."
       : "Un courrier a été déposé dans votre boîte.";
 
-    const whenText = new Date(timestamp).toLocaleString("fr-FR");
+    // Créer l'EVENT (pour l'historique - ne jamais supprimer)
+    const event = new Event({
+      type: notifType,
+      timestamp: new Date(timestamp),
+      deviceID
+    });
+    await event.save();
+    console.log("Event créé:", event._id);
 
-    // ✅ Récupère TOUS les utilisateurs actifs
+    //  Créer la NOTIFICATION (pour la page Notifications - peut être supprimée)
+    const notification = new Notification({
+      eventId: event._id,
+      type: notifType,
+      title,
+      description,
+      timestamp: new Date(timestamp),
+      deviceID,
+      isNew: true,
+    });
+    await notification.save();
+    console.log("Notification créée:", notification._id);
+
+    //  Envoyer les emails
     const users = await User.find({ active: true }).select("email");
-    console.log(`📧 Envoi d'emails à ${users.length} utilisateur(s) inscrit(s)`);
+    console.log(` Envoi d'emails à ${users.length} utilisateur(s) inscrit(s)`);
 
-    if (users.length === 0) {
-      console.log("⚠️ Aucun utilisateur inscrit, aucun email envoyé");
-    }
+    const whenText = new Date(timestamp).toLocaleString("fr-FR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
 
-    // ✅ Envoie un email à CHAQUE utilisateur inscrit (non bloquant)
-    let emailsSent = 0;
     users.forEach(user => {
       sendNotificationEmail({
         type: notifType,
         title,
         description,
         when: whenText,
-        to: user.email // ✅ IMPORTANT : envoie à l'email de l'utilisateur
+        to: user.email,
       })
-      .then(() => {
-        emailsSent++;
-        console.log(`✅ Email envoyé à ${user.email}`);
-      })
-      .catch(err => {
-        console.error(`❌ Erreur email pour ${user.email}:`, err.message);
-      });
+        .then(() => console.log(`Email envoyé à ${user.email}`))
+        .catch(err => console.error(`Erreur email pour ${user.email}:`, err.message));
     });
 
-    res.status(201).json({ 
-      message: "✅ Event enregistré avec succès", 
-      event,
-      emailsSent: users.length
+    //Broadcast WebSocket (optionnel)
+    try {
+      const { wss } = require("../server");
+      if (wss && wss.broadcast) {
+        wss.broadcast({
+          id: String(notification._id),
+          type: notifType,
+          title,
+          description,
+          time: prettyTime(new Date(timestamp)),
+          isNew: true,
+        });
+      }
+    } catch (err) {
+      // WebSocket non disponible, pas grave
+    }
+
+    res.status(201).json({
+      message: " Event et notification enregistrés avec succès",
+      event: event._id,
+      notification: notification._id,
+      emailsSent: users.length,
     });
   } catch (err) {
     console.error("Erreur createNotification:", err);
@@ -146,41 +130,75 @@ exports.createNotification = async (req, res) => {
   }
 };
 
-// POST /api/notifications/mark-all-read - No-op pour compatibilité frontend
-exports.markAllRead = async (req, res) => {
-  res.json({ message: "✅ Toutes les notifications marquées comme lues" });
-};
-
-// POST /api/notifications/:id/read - No-op pour compatibilité frontend
+// POST /api/notifications/:id/read - Marquer comme lu
 exports.markOneRead = async (req, res) => {
   try {
     const { id } = req.params;
-    const event = await Event.findById(id);
+    
+    const notification = await Notification.findByIdAndUpdate(
+      id,
+      { isNew: false },
+      { new: true }
+    );
 
-    if (!event) {
-      return res.status(404).json({ error: "Event introuvable" });
+    if (!notification) {
+      return res.status(404).json({ error: "Notification non trouvée" });
     }
 
-    res.json({ message: "✅ Notification marquée comme lue" });
+    res.json({ message: "Notification marquée comme lue" });
   } catch (err) {
     console.error("Erreur markOneRead:", err);
-    res.status(500).json({ error: "Erreur serveur : " + err.message });
+    res.status(500).json({ error: "Erreur serveur" });
   }
 };
 
-// DELETE /api/notifications/:id - Supprimer un event
+// POST /api/notifications/mark-all-read - Marquer tout comme lu
+exports.markAllRead = async (req, res) => {
+  try {
+    await Notification.updateMany({ isNew: true }, { isNew: false });
+    res.json({ message: " Toutes les notifications ont été marquées comme lues" });
+  } catch (err) {
+    console.error("Erreur markAllRead:", err);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+};
+
+// DELETE /api/notifications/:id - Supprimer une notification (l'event reste dans l'historique)
 exports.deleteOne = async (req, res) => {
   try {
     const { id } = req.params;
-    const event = await Event.findByIdAndDelete(id);
+    
+    const notification = await Notification.findByIdAndDelete(id);
 
-    if (!event) {
-      return res.status(404).json({ error: "Event introuvable" });
+    if (!notification) {
+      return res.status(404).json({ error: "Notification non trouvée" });
     }
 
-    res.json({ message: "✅ Event supprimé" });
+    // On ne supprime PAS l'event correspondant, il reste dans l'historique !
+    res.json({ message: " Notification supprimée (historique conservé)" });
   } catch (err) {
     console.error("Erreur deleteOne:", err);
-    res.status(500).json({ error: "Erreur serveur : " + err.message });
+    res.status(500).json({ error: "Erreur serveur" });
   }
 };
+
+// Helper pour formatter le temps
+function prettyTime(dateLike) {
+  const d = new Date(dateLike);
+  if (Number.isNaN(d.getTime())) return "";
+  
+  const now = new Date();
+  const sameDay = d.toDateString() === now.toDateString();
+
+  const yesterday = new Date(now);
+  yesterday.setDate(now.getDate() - 1);
+  const wasYesterday = d.toDateString() === yesterday.toDateString();
+
+  const hh = String(d.getHours()).padStart(2, "0");
+  const mm = String(d.getMinutes()).padStart(2, "0");
+
+  if (sameDay) return `${hh}h${mm}`;
+  if (wasYesterday) return `Hier ${hh}h${mm}`;
+  
+  return d.toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit" }) + ` ${hh}h${mm}`;
+}
