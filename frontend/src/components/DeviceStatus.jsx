@@ -283,7 +283,7 @@ const cardClass = "p-6 bg-white border-0 shadow-lg";
             </div>
 
             {/* Poids (si disponible, full width) */}
-            {heartbeat.weight_g !== null && (
+            {heartbeat.weight_g !== null && heartbeat.weight_g !== undefined && (
               <div className="flex items-start gap-2 col-span-2 md:col-span-4">
                 <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0">
                   <Weight className="w-5 h-5 text-slate-600" />
