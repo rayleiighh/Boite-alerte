@@ -123,12 +123,18 @@ export default function Notifications() {
   };
 
   const onMarkOne = async (id) => {
-    const ok = await markOneRead(id);
-    if (ok)
-      setItems((prev) =>
-        prev.map((n) => (n.id === id ? { ...n, isNew: false } : n))
-      );
-  };
+  console.log("🔍 Avant markOne:", items.find(n => n.id === id));
+  const ok = await markOneRead(id);
+  console.log("✅ markOneRead retourné:", ok);
+  
+  if (ok) {
+    setItems((prev) => {
+      const updated = prev.map((n) => (n.id === id ? { ...n, isNew: false } : n));
+      console.log("📊 Items après mise à jour:", updated);
+      return updated;
+    });
+  }
+};
 
   const onDelete = async (id) => {
     const ok = await deleteOne(id);
@@ -150,14 +156,14 @@ export default function Notifications() {
             Temps réel: {socketStatus}
           </span>
 
-          {/* ✅ Indicateur d'inscription */}
+          {/*  Indicateur d'inscription */}
           {isSubscribed && (
             <span className="subscription-badge">
                Email activé
             </span>
           )}
 
-          {/* ✅ Bouton Préférences */}
+          {/* Bouton Préférences */}
           <button
             className="btn-preferences"
             onClick={() => setModalOpen(true)}
