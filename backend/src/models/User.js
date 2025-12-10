@@ -25,7 +25,16 @@ const userSchema = new mongoose.Schema(
     deviceID: { 
       type: String, 
       default: "ESP32-001" 
-    } // Lien avec l'appareil (optionnel)
+    }, // Lien avec l'appareil (optionnel)
+    lastLogin: {
+      type: Date,
+      default: null
+  },
+  lastPasswordChange: {
+    type: Date,
+    default: null
+  },
+
   },
   { timestamps: true }
 );
