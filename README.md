@@ -51,11 +51,11 @@ Ce projet est réalisé par des étudiants de l’**EPHEC** dans le cadre du **c
 ## Avancement
 
 * [x] Définition du concept
-* [ ] Choix du matériel
-* [ ] Développement du firmware
-* [ ] Mise en place du backend
-* [ ] Création de l’interface utilisateur
-* [ ] Tests et validation
+* [X] Choix du matériel
+* [X] Développement du firmware
+* [X] Mise en place du backend
+* [X] Création de l’interface utilisateur
+* [X] Tests et validation
 
 ---
 
