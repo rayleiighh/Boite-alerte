@@ -18,6 +18,7 @@ const notificationRoutes = require("./routes/notificationRoutes");
 const displayRoutes = require("./routes/displayRoutes");
 const heartbeatRoutes = require("./routes/heartbeatRoutes"); // ✅ NOUVEAU (Branche developp)
 const userRoutes = require("./routes/userRoutes"); // ✅ AJOUT (Branche feature)
+const authRoutes = require("./routes/authRoutes");
 const { WebSocketServer } = require("ws");
 
 const app = express();
@@ -63,6 +64,8 @@ const authMiddleware = (req, res, next) => {
 
   next();
 };
+// AUTH PUBLIQUE (LOGIN)
+app.use("/auth", authRoutes);
 
 // Appliquer auth sur /api (mais pas sur / et /health)
 app.use("/api", authMiddleware);

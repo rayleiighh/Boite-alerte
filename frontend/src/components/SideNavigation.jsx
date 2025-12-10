@@ -1,12 +1,13 @@
 // Side navigation for desktop
 
-import { Home, Bell, MessageSquare, History, Monitor } from "lucide-react";
+import { Home, Bell, MessageSquare, History, Monitor, LogOut } from "lucide-react";
 import { motion } from "framer-motion";
 
 export function SideNavigation({
   activeTab,
   onTabChange,
   notificationCount = 0,
+  onLogout,
 }) {
   const tabs = [
     {
@@ -94,10 +95,20 @@ export function SideNavigation({
           })}
         </nav>
       </div>
-
       {/* 2. Zone d'étirement: Utilise 'flex-1' pour prendre tout l'espace vertical restant. */}
       {/* Cela s'étirera jusqu'au bas de l'écran, poussant tout le contenu précédent vers le haut. */}
       <div className="flex-1"></div> 
+      <div className="p-6 pt-0">
+        <motion.button
+          onClick={onLogout}
+          className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-red-500 text-white font-medium hover:bg-red-600 transition"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.97 }}
+        >
+          <LogOut className="w-5 h-5" />
+          Se déconnecter
+        </motion.button>
+      </div>
     </div>
   );
 }
