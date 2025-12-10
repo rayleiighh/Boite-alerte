@@ -9,6 +9,14 @@ export default defineConfig(({ mode }) => {
     optimizeDeps: {
       include: ["recharts"],
     },
+    // Configuration Vitest pour les tests
+    test: {
+      globals: true,
+      environment: 'jsdom',
+      setupFiles: ['./src/__tests__/setup.js'],
+      include: ['src/__tests__/**/*.test.{js,jsx}'],
+      css: true,
+    },
     server: {
       host: '0.0.0.0',  // ← AJOUT IMPORTANT : Écoute sur toutes les interfaces
       port: 5173,

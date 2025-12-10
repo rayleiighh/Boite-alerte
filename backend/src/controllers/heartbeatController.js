@@ -56,12 +56,12 @@ exports.receiveHeartbeat = async (req, res) => {
     console.log("💓 [HEARTBEAT] ====================================");
     console.log(`  Device         : ${deviceID}`);
     console.log(`  Time           : ${localTime} (Brussels)`);
-    console.log(`  Uptime         : ${Math.floor(uptime_s / 60)}min ${uptime_s % 60}s`);
-    console.log(`  Events total   : ${event_count}`);
-    console.log(`  WiFi Signal    : ${rssi !== null ? rssi + ' dBm' : 'N/A'}`);
-    console.log(`  Weight         : ${weight_g !== null ? weight_g.toFixed(3) + 'g' : 'N/A'}`);
-    console.log(`  IR Beam        : ${beam_state !== null ? (beam_state ? 'BLOCKED' : 'FREE') : 'N/A'}`);
-    console.log(`  Battery        : ${battery_percent !== null ? battery_percent + '%' : 'N/A'}`);
+    console.log(`  Uptime         : ${uptime_s !== null && uptime_s !== undefined ? Math.floor(uptime_s / 60) + 'min ' + (uptime_s % 60) + 's' : 'N/A'}`);
+    console.log(`  Events total   : ${event_count !== null && event_count !== undefined ? event_count : 'N/A'}`);
+    console.log(`  WiFi Signal    : ${rssi !== null && rssi !== undefined ? rssi + ' dBm' : 'N/A'}`);
+    console.log(`  Weight         : ${weight_g !== null && weight_g !== undefined ? weight_g.toFixed(3) + 'g' : 'N/A'}`);
+    console.log(`  IR Beam        : ${beam_state !== null && beam_state !== undefined ? (beam_state ? 'BLOCKED' : 'FREE') : 'N/A'}`);
+    console.log(`  Battery        : ${battery_percent !== null && battery_percent !== undefined ? battery_percent + '%' : 'N/A'}`);
     console.log("================================================");
 
     res.status(200).json({
