@@ -79,12 +79,12 @@ exports.addEvent = async (req, res) => {
     console.log(`  Type           : ${type}`);
     console.log(`  Device         : ${deviceID}`);
     console.log(`  Timestamp      : ${localTime} (Brussels)`);
-    console.log(`  Weight         : ${weight_g !== null ? weight_g.toFixed(2) + 'g' : 'N/A'}`);
-    console.log(`  WiFi Signal    : ${rssi !== null ? rssi + ' dBm' : 'N/A'}`);
-    console.log(`  IR Beam        : ${beam_state !== null ? (beam_state ? 'BLOCKED' : 'FREE') : 'N/A'}`);
-    console.log(`  Uptime         : ${uptime_s !== null ? Math.floor(uptime_s / 60) + 'min' : 'N/A'}`);
-    console.log(`  Event #        : ${event_count !== null ? event_count : 'N/A'}`);
-    console.log(`  Battery        : ${battery_percent !== null ? battery_percent + '%' : 'N/A'}`);
+    console.log(`  Weight         : ${weight_g !== null && weight_g !== undefined ? weight_g.toFixed(2) + 'g' : 'N/A'}`);
+    console.log(`  WiFi Signal    : ${rssi !== null && rssi !== undefined ? rssi + ' dBm' : 'N/A'}`);
+    console.log(`  IR Beam        : ${beam_state !== null && beam_state !== undefined ? (beam_state ? 'BLOCKED' : 'FREE') : 'N/A'}`);
+    console.log(`  Uptime         : ${uptime_s !== null && uptime_s !== undefined ? Math.floor(uptime_s / 60) + 'min' : 'N/A'}`);
+    console.log(`  Event #        : ${event_count !== null && event_count !== undefined ? event_count : 'N/A'}`);
+    console.log(`  Battery        : ${battery_percent !== null && battery_percent !== undefined ? battery_percent + '%' : 'N/A'}`);
     console.log("==================================================");
 
     // Cache pour idempotence
