@@ -80,7 +80,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-600 via-blue-500 to-cyan-400">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
 
       
       {/* Desktop Layout */}
