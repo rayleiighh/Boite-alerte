@@ -30,22 +30,22 @@ export default function Login({ onLoginSuccess }) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 via-blue-500 to-cyan-400 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-white via-slate-100 to-slate-200 p-4">
       
       {/* Carte principale */}
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="w-full max-w-md bg-white/20 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/30"
+        className="w-full max-w-md bg-white rounded-3xl shadow-2xl p-8 border border-slate-200"
       >
         
         {/* Titre */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white mb-1">
+          <h1 className="text-3xl font-bold text-slate-800 mb-1">
             Boite Alerte
           </h1>
-          <p className="text-white/70">Connexion sécurisée</p>
+          <p className="text-slate-500">Connexion sécurisée</p>
         </div>
 
         {/* Formulaire */}
@@ -53,26 +53,26 @@ export default function Login({ onLoginSuccess }) {
           
           {/* Username */}
           <div className="relative">
-            <User className="absolute left-3 top-1/2 -translate-y-1/2 text-white/70 w-5 h-5" />
+            <User className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
             <input
               type="text"
               placeholder="Nom d'utilisateur"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 rounded-xl bg-white/20 text-white placeholder-white/60 outline-none focus:ring-2 focus:ring-white/40"
+              className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-100 text-slate-800 placeholder-slate-400 outline-none focus:ring-2 focus:ring-indigo-400"
               required
             />
           </div>
 
           {/* Password */}
           <div className="relative">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-white/70 w-5 h-5" />
+            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
             <input
               type="password"
               placeholder="Mot de passe"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 rounded-xl bg-white/20 text-white placeholder-white/60 outline-none focus:ring-2 focus:ring-white/40"
+              className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-100 text-slate-800 placeholder-slate-400 outline-none focus:ring-2 focus:ring-indigo-400"
               required
             />
           </div>
@@ -82,7 +82,7 @@ export default function Login({ onLoginSuccess }) {
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="text-red-300 text-sm text-center"
+              className="text-red-500 text-sm text-center font-medium"
             >
               {error}
             </motion.p>
@@ -94,7 +94,7 @@ export default function Login({ onLoginSuccess }) {
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
             disabled={loading}
-            className="w-full flex items-center justify-center gap-2 bg-white text-indigo-600 font-semibold py-3 rounded-xl shadow-lg hover:bg-slate-100 transition disabled:opacity-60"
+            className="w-full flex items-center justify-center gap-2 bg-indigo-600 text-white font-semibold py-3 rounded-xl shadow-lg hover:bg-indigo-700 transition disabled:opacity-60"
           >
             {loading ? "Connexion..." : "Se connecter"}
             <LogIn className="w-5 h-5" />
@@ -102,7 +102,7 @@ export default function Login({ onLoginSuccess }) {
         </form>
 
         {/* Footer */}
-        <div className="mt-8 text-center text-white/60 text-xs">
+        <div className="mt-8 text-center text-slate-400 text-xs">
           © {new Date().getFullYear()} Boite Alerte — Accès sécurisé
         </div>
       </motion.div>
