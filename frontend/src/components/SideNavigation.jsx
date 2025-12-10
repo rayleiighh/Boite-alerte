@@ -1,6 +1,6 @@
 // Side navigation for desktop
 
-import { Home, Bell, MessageSquare, History, Monitor, LogOut } from "lucide-react";
+import { Home, Bell, MessageSquare, History, Monitor, LogOut, User } from "lucide-react";
 import { motion } from "framer-motion";
 
 export function SideNavigation({
@@ -30,6 +30,11 @@ export function SideNavigation({
       id: "history",
       icon: History,
       label: "History",
+    },
+    {
+      id: "profile",
+      icon: User,
+      label: "Profil",
     },
   ];
 

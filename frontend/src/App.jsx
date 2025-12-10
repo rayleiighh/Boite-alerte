@@ -18,6 +18,9 @@ import { MessageSetup } from "./pages/MessageSetup";
 import HistoryPage from "./pages/History";
 import { getNotifications } from "./services/notifications.api.js";
 import Login from "./pages/Login";
+import Profile from "./pages/Profile";
+import { ca } from "date-fns/locale";
+
 
 export default function App() {
 
@@ -64,6 +67,8 @@ export default function App() {
         return <MessageSetup />;
       case "history":
         return <HistoryPage />;
+      case "profile":
+        return <Profile />;
       default:
         return null;
     }
@@ -75,7 +80,8 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-600 via-blue-500 to-cyan-400">
+
       
       {/* Desktop Layout */}
       <div className="hidden lg:flex h-screen">

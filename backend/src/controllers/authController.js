@@ -24,6 +24,10 @@ exports.login = async (req, res) => {
         .json({ message: "Identifiants incorrects" });
     }
 
+    // ✅ Mise à jour de la dernière connexion
+    user.lastLogin = new Date();
+    await user.save();
+
     // 3. Générer un JWT valide 2 heures
     const token = jwt.sign(
       {
