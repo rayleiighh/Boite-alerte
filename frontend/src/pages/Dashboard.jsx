@@ -42,34 +42,36 @@ export function Dashboard({ onViewDetails }) {
   } = useDashboardData();
 
   const getStatusInfo = () => {
-    switch (mailboxStatus) {
-      case "empty":
-        return {
-          icon: CheckCircle,
-          text: "Boîte aux lettres vide",
-          description: "Aucun élément en attente", // Texte mis à jour
-          color: "bg-green-100 text-green-700",
-          iconColor: "text-green-600",
-        };
-      case "item": // Nouveau statut unique (fusion de mail/package/both)
-        return {
-          icon: Package, // Icône utilisée pour le statut "item"
-          text: "Nouvel élément reçu",
-          description: "Vérifiez votre boîte aux lettres", // Texte mis à jour
-          color: "bg-blue-100 text-blue-700",
-          iconColor: "text-blue-600",
-        };
-      // Suppression des cases "mail", "package", et "both"
-      default:
-        return {
-          icon: CheckCircle,
-          text: "État inconnu",
-          description: "Vérification en cours...",
-          color: "bg-gray-100 text-gray-700",
-          iconColor: "text-gray-600",
-        };
-    }
-  };
+      switch (mailboxStatus) {
+        case "empty":
+          return {
+            icon: CheckCircle,
+            text: "Boîte aux lettres vide",
+            description: "Aucun élément en attente",
+            color: "bg-green-100 text-green-700",
+            iconColor: "text-green-600",
+            shadowColor: "34, 197, 94", 
+          };
+        case "item":
+          return {
+            icon: Package,
+            text: "Nouvel élément reçu",
+            description: "Vérifiez votre boîte aux lettres",
+            color: "bg-blue-100 text-blue-700",
+            iconColor: "text-blue-600",
+            shadowColor: "59, 130, 246", 
+          };
+        default:
+          return {
+            icon: AlertCircle,
+            text: "État inconnu",
+            description: "Vérification en cours...",
+            color: "bg-orange-100 text-orange-700",
+            iconColor: "text-red-500",
+            shadowColor: "239, 68, 68", 
+          };
+      }
+    };
 
   const statusInfo = getStatusInfo();
   const StatusIcon = statusInfo.icon;
