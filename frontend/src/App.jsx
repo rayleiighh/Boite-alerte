@@ -19,7 +19,7 @@ import HistoryPage from "./pages/History";
 import { getNotifications } from "./services/notifications.api.js";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
-import { ca } from "date-fns/locale";
+
 
 
 export default function App() {

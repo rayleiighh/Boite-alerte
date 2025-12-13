@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
 const User = require("../models/MainUser"); // ✅ IMPORTANT : MainUser ici
+const authJwt = require("../middlewares/authJwt");
 
 // ✅ ÉTAT DU SYSTÈME
 router.get("/status", (req, res) => {
@@ -15,10 +16,10 @@ router.get("/status", (req, res) => {
 });
 
 // ✅ PROFIL ADMIN
-router.get("/profile", async (req, res) => {
+router.get("/profile", authJwt, async (req, res) => {
   try {
-    const admin = await User.findOne({ username: "admin" }).select(
-      "username email active createdAt lastLogin"
+    const admin = await User.findById(req.user.userId).select(
+      "username email active createdAt lastLogin lastPasswordChange"
     );
 
     if (!admin) {
@@ -30,6 +31,7 @@ router.get("/profile", async (req, res) => {
       email: admin.email || null,
       createdAt: admin.createdAt,
       lastLogin: admin.lastLogin,
+      lastPasswordChange: admin.lastPasswordChange,
       active: admin.active,
       backend: "ok",
       mongo: mongoose.connection.readyState === 1 ? "connected" : "disconnected",

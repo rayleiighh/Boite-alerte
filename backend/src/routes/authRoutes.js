@@ -4,6 +4,9 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const { login } = require("../controllers/authController.js");
 
+const authJwt = require("../middlewares/authJwt");
+const { changePassword } = require("../controllers/authController");
+
 // ✅ LOGIN
 router.post("/login", login);
 
@@ -41,5 +44,7 @@ router.get("/me", async (req, res) => {
     res.status(401).json({ error: "Token invalide" });
   }
 });
+
+router.post("/change-password", authJwt, changePassword);
 
 module.exports = router;
