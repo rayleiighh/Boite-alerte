@@ -9,6 +9,9 @@ export default function Login({ onLoginSuccess }) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const [showPassword, setShowPassword] = useState(false);
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -68,14 +71,28 @@ export default function Login({ onLoginSuccess }) {
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               placeholder="Mot de passe"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-100 text-slate-800 placeholder-slate-400 outline-none focus:ring-2 focus:ring-indigo-400"
+              className="w-full pl-10 pr-10 py-3 rounded-xl bg-slate-100 text-slate-800 placeholder-slate-400 outline-none focus:ring-2 focus:ring-indigo-400"
               required
             />
+
+            <button
+              type="button"
+              onMouseDown={() => setShowPassword(true)}
+              onMouseUp={() => setShowPassword(false)}
+              onMouseLeave={() => setShowPassword(false)}
+              onTouchStart={() => setShowPassword(true)}
+              onTouchEnd={() => setShowPassword(false)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500"
+              tabIndex={-1}
+            >
+              👁
+            </button>
           </div>
+
 
           {/* Erreur */}
           {error && (

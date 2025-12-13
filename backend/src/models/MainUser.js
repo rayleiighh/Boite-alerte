@@ -22,6 +22,11 @@ const mainUserSchema = new mongoose.Schema(
       type: Date,
       default: null
     },
+    lastPasswordChange: {
+      type: Date,
+      default: null
+    },
+
 
     active: {
       type: Boolean,

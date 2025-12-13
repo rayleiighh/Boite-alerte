@@ -72,8 +72,10 @@ app.use("/auth", authRoutes);
 app.use("/system", systemRoutes);
 
 
-// Appliquer auth sur /api (mais pas sur / et /health)
-app.use("/api", authMiddleware);
+// 🔐 API key UNIQUEMENT pour l’ESP32
+app.use("/api/events", authMiddleware);
+app.use("/api/heartbeat", authMiddleware);
+
 
 // ========== CONNEXION DB ==========
 connectDB();

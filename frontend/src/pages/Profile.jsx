@@ -21,6 +21,21 @@ export default function Profile() {
   const [systemStatus, setSystemStatus] = useState(null);
   const [notificationEmails, setNotificationEmails] = useState([]);
 
+  const [showChangePassword, setShowChangePassword] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const [pwdError, setPwdError] = useState("");
+  const [pwdSuccess, setPwdSuccess] = useState("");
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [visibleField, setVisibleField] = useState(null);
+// valeurs possibles : "current" | "new" | "confirm" | null
+
+
+
   // ==========================
   // 2️⃣ CHARGER LES DONNÉES DU BACKEND
   // ==========================
@@ -41,6 +56,7 @@ export default function Profile() {
           role: "Administrateur",
           email: res.data.email || "Aucun email défini",
           lastLogin: new Date(res.data.lastLogin).toLocaleString("fr-FR"),
+          lastPasswordChange: res.data.lastPasswordChange, 
           status: res.data.active ? "actif" : "inactif",
         });
 
@@ -87,6 +103,95 @@ export default function Profile() {
     );
   }
 
+  const validatePasswordForm = () => {
+  setPwdError("");
+  setPwdSuccess("");
+
+  if (!currentPassword || !newPassword || !confirmPassword) {
+    setPwdError("Tous les champs sont obligatoires");
+    return false;
+  }
+
+  if (newPassword !== confirmPassword) {
+    setPwdError("Les mots de passe ne correspondent pas");
+    return false;
+  }
+
+  if (newPassword.length < 8 || !/\d/.test(newPassword)) {
+    setPwdError("Le mot de passe doit contenir au moins 8 caractères et 1 chiffre");
+    return false;
+  }
+
+  return true;
+};
+
+const handleChangePassword = async () => {
+  if (!validatePasswordForm()) return;
+
+  const token = localStorage.getItem("authToken");
+  if (!token) {
+    setPwdError("Session invalide, veuillez vous reconnecter");
+    return;
+  }
+
+  try {
+    setIsSubmitting(true);      // ⬅️ ICI (avant l’appel)
+    setPwdError("");
+    setPwdSuccess("");
+
+    await axios.post(
+      "http://localhost:5001/auth/change-password",
+      {
+        currentPassword,
+        newPassword,
+        confirmPassword,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    // ⬅️ Succès backend confirmé
+    setAdminInfo((prev) => ({
+      ...prev,
+      lastPasswordChange: new Date().toISOString(),
+    }));
+
+    setPwdSuccess("Mot de passe modifié avec succès.");
+    setCurrentPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
+
+  } catch (err) {
+    if (err.response?.status === 401) {
+      const msg = err.response?.data?.message || "";
+
+      if (
+        msg.toLowerCase().includes("session") ||
+        msg.toLowerCase().includes("token")
+      ) {
+        localStorage.removeItem("authToken");
+        window.location.reload();
+        return;
+      }
+
+      setPwdError(msg || "Mot de passe actuel incorrect");
+      return;
+    }
+
+    setPwdError(
+      err.response?.data?.message || "Erreur lors du changement de mot de passe"
+    );
+  } finally {
+    setIsSubmitting(false);     // ⬅️ TOUJOURS ici
+  }
+};
+
+
+
   // ==========================
   // 3️⃣ AFFICHAGE (inchangé, juste relié au backend)
   // ==========================
@@ -110,13 +215,15 @@ export default function Profile() {
         </div>
       </motion.div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 w-full">
+
 
         {/* INFOS ADMIN */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white border border-slate-200 rounded-xl shadow-sm p-6"
+          className="bg-white border border-slate-200 rounded-xl shadow-sm p-6 lg:col-span-3"
+
         >
           <h2 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
             <User className="w-5 h-5 text-indigo-600" />
@@ -179,42 +286,12 @@ export default function Profile() {
           </div>
         </motion.div>
 
-        {/* SÉCURITÉ */}
+         {/* ÉTAT DU SYSTÈME */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white border border-slate-200 rounded-xl shadow-sm p-6"
-        >
-          <h2 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
-            <Shield className="w-5 h-5 text-indigo-600" />
-            Sécurité du compte
-          </h2>
+          className="bg-white border border-slate-200 rounded-xl shadow-sm p-6 lg:col-span-1"
 
-          <div className="space-y-3 text-sm mb-4">
-            <div className="flex justify-between">
-              <span className="text-slate-500">Algorithme de hash</span>
-              <span className="text-emerald-600 font-medium">Argon2id</span>
-            </div>
-
-            <div className="flex justify-between">
-              <span className="text-slate-500">Dernière modification du mot de passe</span>
-              <span className="text-slate-800 font-medium">Gestion à venir</span>
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            <button className="w-full flex items-center justify-center gap-2 bg-indigo-600 text-white font-semibold py-2.5 rounded-lg hover:bg-indigo-700 transition">
-              <Lock className="w-4 h-4" />
-              Changer le mot de passe
-            </button>
-          </div>
-        </motion.div>
-
-        {/* ÉTAT DU SYSTÈME */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-white border border-slate-200 rounded-xl shadow-sm p-6"
         >
           <h2 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
             <Database className="w-5 h-5 text-indigo-600" />
@@ -253,6 +330,149 @@ export default function Profile() {
               <span className="text-slate-800 font-medium">{systemStatus.uptime}</span>
             </div>
 
+          </div>
+        </motion.div>
+
+        {/* SÉCURITÉ */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white border border-slate-200 rounded-xl shadow-sm p-6 lg:col-span-3"
+
+
+        >
+          <h2 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
+            <Shield className="w-5 h-5 text-indigo-600" />
+            Sécurité du compte
+          </h2>
+
+          <div className="space-y-3 text-sm mb-4">
+            <div className="flex justify-between">
+              <span className="text-slate-500">Algorithme de hash</span>
+              <span className="text-emerald-600 font-medium">Argon2id</span>
+            </div>
+
+            <div className="flex justify-between">
+              <span className="text-slate-500">Dernière modification du mot de passe</span>
+              <span className="text-slate-800 font-medium">
+                {adminInfo.lastPasswordChange
+                  ? new Date(adminInfo.lastPasswordChange).toLocaleString("fr-FR")
+                  : "Jamais modifié"}
+              </span>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <button
+              type="button"
+              onClick={() => {
+                setShowChangePassword((v) => !v);
+                setPwdError("");
+                setPwdSuccess("");
+                setVisibleField(null);
+              }}
+              className="w-full flex items-center justify-center gap-2 bg-indigo-600 text-white font-semibold py-2.5 rounded-lg hover:bg-indigo-700 transition"
+            >
+              <Lock className="w-4 h-4" />
+              Changer le mot de passe
+            </button>
+
+            {showChangePassword && (
+              <form
+                className="mt-4 space-y-3"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleChangePassword();
+                }}
+              >
+
+
+                {/* Mot de passe actuel */}
+                <div className="relative">
+                  <input
+                    type={visibleField === "current" ? "text" : "password"}
+                    placeholder="Mot de passe actuel"
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm pr-10"
+                  />
+                  <button
+                    type="button"
+                    onMouseDown={() => setVisibleField("current")}
+                    onMouseUp={() => setVisibleField(null)}
+                    onMouseLeave={() => setVisibleField(null)}
+                    onTouchStart={() => setVisibleField("current")}
+                    onTouchEnd={() => setVisibleField(null)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500"
+                    tabIndex={-1}
+                  >
+                    👁
+                  </button>
+                </div>
+
+                {/* Nouveau mot de passe */}
+                <div className="relative">
+                  <input
+                    type={visibleField === "new" ? "text" : "password"}
+                    placeholder="Nouveau mot de passe"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm pr-10"
+                  />
+                  <button
+                    type="button"
+                    onMouseDown={() => setVisibleField("new")}
+                    onMouseUp={() => setVisibleField(null)}
+                    onMouseLeave={() => setVisibleField(null)}
+                    onTouchStart={() => setVisibleField("new")}
+                    onTouchEnd={() => setVisibleField(null)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500"
+                    tabIndex={-1}
+                  >
+                    👁
+                  </button>
+                </div>
+
+                {/* Confirmation nouveau mot de passe */}
+                <div className="relative">
+                  <input
+                    type={visibleField === "confirm" ? "text" : "password"}
+                    placeholder="Confirmer le nouveau mot de passe"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm pr-10"
+                  />
+                  <button
+                    type="button"
+                    onMouseDown={() => setVisibleField("confirm")}
+                    onMouseUp={() => setVisibleField(null)}
+                    onMouseLeave={() => setVisibleField(null)}
+                    onTouchStart={() => setVisibleField("confirm")}
+                    onTouchEnd={() => setVisibleField(null)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500"
+                    tabIndex={-1}
+                  >
+                    👁
+                  </button>
+                </div>
+
+                {pwdError && (
+                  <div className="text-sm text-red-600">{pwdError}</div>
+                )}
+                {pwdSuccess && (
+                  <div className="text-sm text-emerald-600">{pwdSuccess}</div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full mt-2 flex items-center justify-center bg-slate-800 text-white font-semibold py-2.5 rounded-lg hover:bg-slate-900 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isSubmitting ? "Validation..." : "Valider"}
+                </button>
+
+              </form>
+            )}
           </div>
         </motion.div>
       </div>
