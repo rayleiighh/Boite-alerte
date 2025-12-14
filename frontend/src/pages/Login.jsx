@@ -23,7 +23,7 @@ export default function Login({ onLoginSuccess }) {
         password,
       });
 
-      localStorage.setItem("authToken", res.data.token);
+      sessionStorage.setItem("authToken", res.data.token);
       onLoginSuccess();
     } catch (err) {
       setError("Identifiants incorrects");

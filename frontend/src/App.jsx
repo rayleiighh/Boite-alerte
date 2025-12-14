@@ -26,7 +26,7 @@ export default function App() {
 
   // ✅ (1) ÉTAT DE CONNEXION AVEC PERSISTANCE
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
-    const token = localStorage.getItem("authToken");
+    const token = sessionStorage.getItem("authToken");
     return !!token;
   });
 
@@ -35,7 +35,7 @@ export default function App() {
 
   // ✅ (2) FONCTION LOGOUT
   const handleLogout = () => {
-    localStorage.removeItem("authToken"); // supprime le JWT
+    sessionStorage.removeItem("authToken"); // supprime le JWT
     setIsLoggedIn(false);                 // retourne au Login
   };
 
@@ -54,6 +54,23 @@ export default function App() {
     const interval = setInterval(loadNotifications, 10000);
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    const checkAuth = () => {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        setIsLoggedIn(false);
+        setActiveTab("dashboard");
+      }
+    };
+
+    window.addEventListener("storage", checkAuth);
+    checkAuth();
+
+    return () => window.removeEventListener("storage", checkAuth);
+  }, []);
+
+
 
   const newNotificationsCount = notifications.filter((n) => n.isNew).length;
 
