@@ -111,7 +111,7 @@ export function SideNavigation({
           whileTap={{ scale: 0.97 }}
         >
           <LogOut className="w-5 h-5" />
-          Se déconnecter
+          Quitter
         </motion.button>
       </div>
     </div>

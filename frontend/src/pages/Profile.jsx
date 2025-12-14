@@ -61,7 +61,7 @@ export default function Profile() {
         });
 
         setSystemStatus({
-          backend: res.data.backend,
+          backend: res.data.backend === "ok" ? "ok" : "error",
           db: res.data.mongo === "connected" ? "ok" : "error",
           uptime: formatUptime(res.data.uptime),
         });
@@ -135,7 +135,7 @@ const handleChangePassword = async () => {
   }
 
   try {
-    setIsSubmitting(true);      // ⬅️ ICI (avant l’appel)
+    setIsSubmitting(true);      
     setPwdError("");
     setPwdSuccess("");
 
@@ -303,11 +303,19 @@ const handleChangePassword = async () => {
             <div className="flex justify-between">
               <span className="text-slate-500">Backend</span>
               <span className="flex items-center gap-1">
-                <CheckCircle className="w-4 h-4 text-emerald-500" />
-                <span className="text-emerald-600 font-medium">En ligne</span>
+                {systemStatus.backend === "ok" ? (
+                  <>
+                    <CheckCircle className="w-4 h-4 text-emerald-500" />
+                    <span className="text-emerald-600 font-medium">En ligne</span>
+                  </>
+                ) : (
+                  <>
+                    <XCircle className="w-4 h-4 text-red-500" />
+                    <span className="text-red-600 font-medium">Hors ligne</span>
+                  </>
+                )}
               </span>
             </div>
-
             <div className="flex justify-between">
               <span className="text-slate-500">MongoDB</span>
               <span className="flex items-center gap-1">

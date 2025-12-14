@@ -4,16 +4,6 @@ const mongoose = require("mongoose");
 const User = require("../models/MainUser"); // ✅ IMPORTANT : MainUser ici
 const authJwt = require("../middlewares/authJwt");
 
-// ✅ ÉTAT DU SYSTÈME
-router.get("/status", (req, res) => {
-  const dbState = mongoose.connection.readyState === 1 ? "connected" : "disconnected";
-
-  res.json({
-    backend: "ok",
-    mongo: dbState,
-    uptime: process.uptime(),
-  });
-});
 
 // ✅ PROFIL ADMIN
 router.get("/profile", authJwt, async (req, res) => {

@@ -1,4 +1,4 @@
-import { Home, Bell, MessageSquare, Clock } from "lucide-react";
+import { Home, Bell, MessageSquare, Clock, User, LogOut } from "lucide-react";
 import { motion } from "framer-motion";
 
 export function BottomNavigation({
@@ -16,6 +16,8 @@ export function BottomNavigation({
     },
     { id: "messages", icon: MessageSquare, label: "Messages" },
     { id: "history", icon: Clock, label: "History" },
+    { id: "profile", icon: User, label: "Profil" },
+    { id: "logout", icon: LogOut, label: "Quitter" },
   ];
 
   return (
@@ -28,12 +30,23 @@ export function BottomNavigation({
           return (
             <motion.button
               key={tab.id}
-              onClick={() => onTabChange(tab.id)}
+              onClick={() => {
+                if (tab.id === "logout") {
+                  localStorage.removeItem("authToken");
+                  window.location.reload();
+                  return;
+                }
+                onTabChange(tab.id);
+              }}
+
               className={`flex-1 flex flex-col items-center justify-center py-3 px-2 transition-all duration-300 ${
-                isActive
-                  ? "text-blue-600 bg-blue-50/50"
-                  : "text-muted-foreground hover:text-blue-500 hover:bg-blue-50/30"
+                tab.id === "logout"
+                  ? "text-red-600 hover:text-red-700 hover:bg-red-50/40"
+                  : isActive
+                    ? "text-blue-600 bg-blue-50/50"
+                    : "text-muted-foreground hover:text-blue-500 hover:bg-blue-50/30"
               }`}
+
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
