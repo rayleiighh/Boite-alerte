@@ -142,12 +142,6 @@ export function MessageSetup() {
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5 }}
       >
-        <h1 className="mb-2 bg-gradient-to-r from-slate-800 to-blue-600 bg-clip-text text-transparent">
-          Configuration de l'affichage
-        </h1>
-        <p className="text-muted-foreground lg:text-lg">
-          Personnalisez le numéro de maison et le message de la boîte
-        </p>
       </motion.div>
 
       {/* Messages d'erreur/succès */}

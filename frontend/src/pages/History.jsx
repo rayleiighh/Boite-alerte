@@ -77,11 +77,6 @@ export default function HistoryPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 p-6">
       <div className="max-w-5xl mx-auto">
-        {/* --- Titre --- */}
-        <h1 className="text-3xl font-semibold text-slate-800 mb-6 flex items-center gap-3">
-          <span className="inline-block w-1.5 h-8 bg-gradient-to-b from-blue-500 to-indigo-500 rounded-full"></span>
-          Historique
-        </h1>
 
         {/* --- Filtres --- */}
         <div className="mb-6 bg-white/80 backdrop-blur-md border border-blue-100 shadow-md shadow-blue-100/50 rounded-2xl p-4">
@@ -131,8 +126,6 @@ export default function HistoryPage() {
                     <EventItemRow
                       key={i}
                       e={e}
-                      // ⚠️ IMPORTANT : ici on NE déclenche PAS de modale.
-                      // EventItemRow gère sa propre modale et appelle onDelete(id) APRÈS suppression.
                       onDelete={handleRowDeleted}
                     />
                   ))

@@ -33,8 +33,13 @@ export function SideNavigation({
   ];
 
   return (
-    <div className="w-64 bg-white/80 backdrop-blur-lg border-r border-slate-200/50 shadow-xl shadow-slate-900/5 h-full">
-      <div className="p-6">
+    // 1. Conteneur racine: h-full, flex et flex-col pour s'étirer verticalement.
+    <div className="w-64 bg-white/80 backdrop-blur-lg border-r border-slate-200/50 shadow-xl shadow-slate-900/5 h-full flex flex-col">
+      
+      {/* Contenu principal (Logo + Nav) */}
+      <div className="p-6"> 
+        
+        {/* Logo et titre (Inchangés) */}
         <div className="flex items-center gap-3 mb-8">
           <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-lg flex items-center justify-center">
             <Home className="w-4 h-4 text-white" />
@@ -46,6 +51,7 @@ export function SideNavigation({
           </div>
         </div>
 
+        {/* Navigation (Inchangée) */}
         <nav className="space-y-2">
           {tabs.map((tab) => {
             const IconComponent = tab.icon;
@@ -88,6 +94,10 @@ export function SideNavigation({
           })}
         </nav>
       </div>
+
+      {/* 2. Zone d'étirement: Utilise 'flex-1' pour prendre tout l'espace vertical restant. */}
+      {/* Cela s'étirera jusqu'au bas de l'écran, poussant tout le contenu précédent vers le haut. */}
+      <div className="flex-1"></div> 
     </div>
   );
 }
