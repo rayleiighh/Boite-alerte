@@ -1,4 +1,7 @@
 const Event = require("../models/Event");
+const Notification = require("../models/Notification");
+const User = require("../models/User");
+const { sendNotificationEmail } = require("../services/mailer");
 
 // ========== CACHE ANTI-DOUBLON ==========
 const idempotencyCache = new Map();
@@ -13,7 +16,7 @@ setInterval(() => {
   }
 }, 10 * 60 * 1000);
 
-// ========== POST /api/events (ENRICHI Phase 1) ==========
+// ========== POST /api/events (ENRICHI Phase 1 + EMAILS) ==========
 exports.addEvent = async (req, res) => {
   try {
     const { 
@@ -48,7 +51,23 @@ exports.addEvent = async (req, res) => {
       });
     }
 
-    // Création événement avec stats enrichies
+    // ========== MAPPING DU TYPE ==========
+    const low = (type || "").toLowerCase();
+    const notifType = low.includes("colis") || low.includes("package") ? "package" 
+      : low.includes("alerte") || low.includes("alert") ? "alert" 
+      : "mail";
+
+    const title = notifType === "package" ? "Colis détecté"
+      : notifType === "alert" ? "Alerte système"
+      : "Nouvelle lettre reçue";
+
+    const description = notifType === "package"
+      ? "Un colis est en attente de récupération."
+      : notifType === "alert"
+      ? "Veuillez vérifier la boîte aux lettres."
+      : "Un courrier a été déposé dans votre boîte.";
+
+    // ========== CRÉATION EVENT ==========
     const event = new Event({
       type,
       timestamp: new Date(timestamp),
@@ -64,6 +83,74 @@ exports.addEvent = async (req, res) => {
 
     await event.save();
 
+    // ========== CRÉATION NOTIFICATION ==========
+    const notification = new Notification({
+      eventId: event._id,
+      type: notifType,
+      title,
+      description,
+      timestamp: new Date(timestamp),
+      deviceID,
+      isNew: true,
+    });
+    await notification.save();
+    console.log("📝 Notification créée:", notification._id);
+
+    // ========== ENVOI EMAILS ==========
+    let emailsSent = 0;
+    try {
+      const users = await User.find({ active: true }).select("email");
+      console.log(`📧 Envoi d'emails à ${users.length} utilisateur(s) inscrit(s)`);
+
+      const whenText = new Date(timestamp).toLocaleString("fr-FR", {
+        timeZone: "Europe/Brussels",
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+
+      for (const user of users) {
+        try {
+          await sendNotificationEmail({
+            type: notifType,
+            title,
+            description,
+            when: whenText,
+            to: user.email,
+          });
+          console.log(`✅ Email envoyé à ${user.email}`);
+          emailsSent++;
+        } catch (emailErr) {
+          console.error(`❌ Erreur email pour ${user.email}:`, emailErr.message);
+        }
+      }
+    } catch (userErr) {
+      console.error("❌ Erreur récupération utilisateurs:", userErr.message);
+    }
+
+    // ========== BROADCAST WEBSOCKET ==========
+    try {
+      const { wss } = require("../server");
+      if (wss && wss.broadcast) {
+        wss.broadcast({
+          id: String(notification._id),
+          type: notifType,
+          title,
+          description,
+          time: new Date(timestamp).toLocaleTimeString("fr-FR", {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+          isNew: true,
+        });
+        console.log("📡 WebSocket broadcast envoyé");
+      }
+    } catch (wsErr) {
+      // WebSocket non disponible, pas grave
+    }
+
     // Logging enrichi
     const localTime = new Date(timestamp).toLocaleString("fr-BE", {
       timeZone: "Europe/Brussels",
@@ -76,15 +163,17 @@ exports.addEvent = async (req, res) => {
     });
 
     console.log("📬 [EVENT] ==========================================");
-    console.log(`  Type           : ${type}`);
-    console.log(`  Device         : ${deviceID}`);
-    console.log(`  Timestamp      : ${localTime} (Brussels)`);
-    console.log(`  Weight         : ${weight_g !== null ? weight_g.toFixed(2) + 'g' : 'N/A'}`);
-    console.log(`  WiFi Signal    : ${rssi !== null ? rssi + ' dBm' : 'N/A'}`);
-    console.log(`  IR Beam        : ${beam_state !== null ? (beam_state ? 'BLOCKED' : 'FREE') : 'N/A'}`);
-    console.log(`  Uptime         : ${uptime_s !== null ? Math.floor(uptime_s / 60) + 'min' : 'N/A'}`);
-    console.log(`  Event #        : ${event_count !== null ? event_count : 'N/A'}`);
-    console.log(`  Battery        : ${battery_percent !== null ? battery_percent + '%' : 'N/A'}`);
+    console.log(`  Type            : ${type} → ${notifType}`);
+    console.log(`  Device          : ${deviceID}`);
+    console.log(`  Timestamp       : ${localTime} (Brussels)`);
+    console.log(`  Weight          : ${weight_g !== null && weight_g !== undefined ? weight_g.toFixed(2) + 'g' : 'N/A'}`);
+    console.log(`  WiFi Signal     : ${rssi !== null && rssi !== undefined ? rssi + ' dBm' : 'N/A'}`);
+    console.log(`  IR Beam         : ${beam_state !== null && beam_state !== undefined ? (beam_state ? 'BLOCKED' : 'FREE') : 'N/A'}`);
+    console.log(`  Uptime          : ${uptime_s !== null && uptime_s !== undefined ? Math.floor(uptime_s / 60) + 'min' : 'N/A'}`);
+    console.log(`  Event #         : ${event_count !== null && event_count !== undefined ? event_count : 'N/A'}`);
+    console.log(`  Battery         : ${battery_percent !== null && battery_percent !== undefined ? battery_percent + '%' : 'N/A'}`);
+    // CONFLIT RÉSOLU ICI : Ligne conservée
+    console.log(`  📧 Emails sent : ${emailsSent}`);
     console.log("==================================================");
 
     // Cache pour idempotence
@@ -98,6 +187,8 @@ exports.addEvent = async (req, res) => {
     res.status(201).json({
       message: "✅ Event enregistré avec succès",
       event,
+      notification: notification._id,
+      emailsSent,
     });
   } catch (err) {
     console.error("❌ [ERROR] addEvent:", err.message);
