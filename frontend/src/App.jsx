@@ -13,21 +13,33 @@ import { useState, useEffect } from "react";
 import { SideNavigation } from "./components/SideNavigation";
 import { BottomNavigation } from "./components/BottomNavigation";
 import { DashboardContainer } from "./pages/DashboardContainer";
-import Notifications from "./pages/Notifications"; // ✅ garde le composant de feature/Notification
+import Notifications from "./pages/Notifications";
 import { MessageSetup } from "./pages/MessageSetup";
 import HistoryPage from "./pages/History";
-import { getNotifications } from "./services/notifications.api.js"; // ✅ vrai service API
+import { getNotifications } from "./services/notifications.api.js";
 import Login from "./pages/Login";
+import Profile from "./pages/Profile";
+
 
 
 export default function App() {
 
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  // ✅ (1) ÉTAT DE CONNEXION AVEC PERSISTANCE
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    const token = sessionStorage.getItem("authToken");
+    return !!token;
+  });
+
   const [activeTab, setActiveTab] = useState("dashboard");
-  
   const [notifications, setNotifications] = useState([]);
 
-  // 🔁 Charge les notifications depuis l'API au démarrage et toutes les 10 secondes
+  // ✅ (2) FONCTION LOGOUT
+  const handleLogout = () => {
+    sessionStorage.removeItem("authToken"); // supprime le JWT
+    setIsLoggedIn(false);                 // retourne au Login
+  };
+
+  // 🔁 Charge les notifications depuis l'API
   useEffect(() => {
     const loadNotifications = async () => {
       try {
@@ -38,12 +50,28 @@ export default function App() {
       }
     };
 
-    loadNotifications(); // initial
+    loadNotifications();
     const interval = setInterval(loadNotifications, 10000);
     return () => clearInterval(interval);
   }, []);
 
-  // 🔢 Compte uniquement les notifications non lues
+  useEffect(() => {
+    const checkAuth = () => {
+      const token = sessionStorage.getItem("authToken");
+      if (!token) {
+        setIsLoggedIn(false);
+        setActiveTab("dashboard");
+      }
+    };
+
+    window.addEventListener("storage", checkAuth);
+    checkAuth();
+
+    return () => window.removeEventListener("storage", checkAuth);
+  }, []);
+
+
+
   const newNotificationsCount = notifications.filter((n) => n.isNew).length;
 
   const renderActivePage = () => {
@@ -56,46 +84,46 @@ export default function App() {
         return <MessageSetup />;
       case "history":
         return <HistoryPage />;
+      case "profile":
+        return <Profile />;
       default:
         return null;
     }
   };
 
-  // ✅ Si l'utilisateur n'est pas connecté, afficher la page Login
+  // ✅ (3) SI PAS CONNECTÉ → LOGIN
   if (!isLoggedIn) {
     return <Login onLoginSuccess={() => setIsLoggedIn(true)} />;
   }
 
   return (
-    // min-h-screen sur l'élément le plus haut pour la couleur de fond
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
+
       
       {/* Desktop Layout */}
-      {/* CORRECTION: Utiliser h-screen pour forcer la hauteur 100% du viewport,
-         permettant à SideNavigation (h-full) de s'étirer. */}
       <div className="hidden lg:flex h-screen">
-        
-        {/* La SideNavigation s'étire grâce à h-full dans son composant */}
         <SideNavigation
           activeTab={activeTab}
           onTabChange={setActiveTab}
           notificationCount={newNotificationsCount}
+          onLogout={handleLogout}
         />
         
-        {/* Le conteneur de contenu prend le reste de l'espace */}
-        <div className="flex-1 overflow-auto">{renderActivePage()}</div>
+        <div className="flex-1 overflow-auto">
+          {renderActivePage()}
+        </div>
       </div>
   
-      {/* Mobile Layout (inchangé) */}
+      {/* Mobile Layout */}
       <div className="lg:hidden min-h-screen">
         <div className="mobile-content">{renderActivePage()}</div>
   
-        {/* Navigation fixe en bas */}
         <div className="bottom-nav-container">
           <BottomNavigation
             activeTab={activeTab}
             onTabChange={setActiveTab}
             notificationCount={newNotificationsCount}
+           onLogout={handleLogout}
           />
         </div>
       </div>

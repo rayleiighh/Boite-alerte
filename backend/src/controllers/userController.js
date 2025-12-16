@@ -70,3 +70,22 @@ exports.getUsers = async (req, res) => {
     res.status(500).json({ error: "Erreur serveur : " + err.message });
   }
 };
+
+
+// Récupérer tous les utilisateurs avec notifications actives
+exports.getNotifiedEmails = async (req, res) => {
+  try {
+    const users = await User.find({ active: true }).select(
+      "username email active"
+    );
+
+    const emails = users.map(u => u.email); // ✅ recalculé AU BON ENDROIT
+
+    res.json(emails); // ✅ on retourne un tableau d'emails
+
+  } catch (error) {
+    console.error("Erreur récupération emails notifiés:", error);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+};
+
