@@ -90,7 +90,7 @@ app.get("/health", (req, res) => {
 app.use("/api/events", eventRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/display", displayRoutes);
-app.use("/api/heartbeat", heartbeatRoutes); // ✅ Route heartbeat
+app.use("/api/heartbeat", heartbeatRoutes); // Route heartbeat
 app.use("/api/users", userRoutes); // ✅ Gestion des inscriptions email
 
 // Compatibilité ESP32 (anciennes URLs)

@@ -7,14 +7,18 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@radix-ui/react-label": "^2.1.7",
     "@radix-ui/react-slot": "^1.2.3",
     "axios": "^1.12.2",
     "class-variance-authority": "^0.7.1",
-    "framer-motion": "^12.23.22",
+    "date-fns": "^4.1.0",
+    "framer-motion": "^12.23.25",
     "lucide-react": "^0.544.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -24,6 +28,9 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^5.0.3",
@@ -32,8 +39,11 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.4.0",
+    "jsdom": "^27.2.0",
+    "msw": "^2.12.4",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.18",
-    "vite": "^7.1.7"
+    "vite": "^7.1.7",
+    "vitest": "^4.0.15"
   }
 }

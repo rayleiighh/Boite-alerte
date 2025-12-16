@@ -1,0 +1,113 @@
+name: Tests Historique (US #30, #31, #32)
+
+on:
+  push:
+    branches: [developp, main]
+    paths:
+      - 'backend/src/controllers/eventController.js'
+      - 'backend/src/routes/eventRoutes.js'
+      - 'backend/src/models/Event.js'
+      - 'backend/tests/**'
+      - 'frontend/src/pages/History.jsx'
+      - 'frontend/src/components/Filters.jsx'
+      - 'frontend/src/components/Pagination.jsx'
+      - 'frontend/src/components/EventItem.jsx'
+      - 'frontend/src/services/events.js'
+      - 'frontend/src/__tests__/**'
+  pull_request:
+    branches: [developp, main]
+    paths:
+      - 'backend/src/controllers/eventController.js'
+      - 'backend/src/routes/eventRoutes.js'
+      - 'backend/src/models/Event.js'
+      - 'backend/tests/**'
+      - 'frontend/src/pages/History.jsx'
+      - 'frontend/src/components/Filters.jsx'
+      - 'frontend/src/components/Pagination.jsx'
+      - 'frontend/src/components/EventItem.jsx'
+      - 'frontend/src/services/events.js'
+      - 'frontend/src/__tests__/**'
+
+jobs:
+  # ========== TESTS BACKEND ==========
+  test-backend:
+    name: 🔧 Tests Backend (Events API)
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: 📦 Install dependencies
+        working-directory: backend
+        run: npm ci
+
+      - name: 🧪 Run backend tests
+        working-directory: backend
+        run: npm test
+
+      - name: 📊 Generate coverage report
+        working-directory: backend
+        run: npm run test:coverage
+        continue-on-error: true
+
+  # ========== TESTS FRONTEND ==========
+  test-frontend:
+    name: 🎨 Tests Frontend (History Page)
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: 📦 Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: 🧪 Run frontend tests
+        working-directory: frontend
+        run: npm test
+
+      - name: 📊 Generate coverage report
+        working-directory: frontend
+        run: npm run test:coverage
+        continue-on-error: true
+
+  # ========== RÉSUMÉ ==========
+  test-summary:
+    name: ✅ Tests Summary
+    needs: [test-backend, test-frontend]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+      - name: 📋 Check test results
+        run: |
+          echo "=================================="
+          echo "🎯 US Historique - Résultats Tests"
+          echo "=================================="
+          echo ""
+          echo "📦 Backend: ${{ needs.test-backend.result }}"
+          echo "🎨 Frontend: ${{ needs.test-frontend.result }}"
+          echo ""
+          if [ "${{ needs.test-backend.result }}" == "success" ] && [ "${{ needs.test-frontend.result }}" == "success" ]; then
+            echo "✅ Tous les tests passent!"
+            exit 0
+          else
+            echo "❌ Certains tests ont échoué"
+            exit 1
+          fi

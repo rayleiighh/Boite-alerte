@@ -145,16 +145,7 @@ export default function Notifications() {
     <section className="notif-page">
       {/* Header */}
       <div className="notif-head">
-        <div>
-          <h1>Notifications</h1>
-          <p>Alertes en temps réel</p>
-        </div>
         <div className="notif-counters">
-          <span>{newCount} nouvelles notifications</span>
-          <span>{items.length} au total</span>
-          <span className={`socket ${socketStatus}`}>
-            Temps réel: {socketStatus}
-          </span>
 
           {/*  Indicateur d'inscription */}
           {isSubscribed && (

@@ -1,11 +1,11 @@
 /***************************************************************************
  *
- *  Project Title : Boite-alerte
- *  Authors       : Nicolas H, Rayane B, Saad Z,  Mohamed EM, ...
- *  File          : App.jsx
- *  Description   : Main App component
- *  Date          : 27/09/2025
- *  Version       : [1.0.0]
+ * Project Title : Boite-alerte
+ * Authors       : Nicolas H, Rayane B, Saad Z,  Mohamed EM, ...
+ * File          : App.jsx
+ * Description   : Main App component
+ * Date          : 27/09/2025
+ * Version       : [1.0.0]
  *
  ***************************************************************************/
 
@@ -19,13 +19,6 @@ import HistoryPage from "./pages/History";
 import { getNotifications } from "./services/notifications.api.js"; // ✅ vrai service API
 import Login from "./pages/Login";
 
-// ✅ Mock temporaire
-const mockNotifications = [
-  { id: "1", isNew: true },
-  { id: "2", isNew: true },
-  { id: "3", isNew: false },
-  { id: "4", isNew: false },
-];
 
 export default function App() {
 
@@ -34,7 +27,7 @@ export default function App() {
   
   const [notifications, setNotifications] = useState([]);
 
-   // 🔁 Charge les notifications depuis l'API au démarrage et toutes les 10 secondes
+  // 🔁 Charge les notifications depuis l'API au démarrage et toutes les 10 secondes
   useEffect(() => {
     const loadNotifications = async () => {
       try {
@@ -68,28 +61,35 @@ export default function App() {
     }
   };
 
-    // ✅ Si l'utilisateur n'est pas connecté, afficher la page Login
+  // ✅ Si l'utilisateur n'est pas connecté, afficher la page Login
   if (!isLoggedIn) {
     return <Login onLoginSuccess={() => setIsLoggedIn(true)} />;
   }
 
-  // ✅ Si connecté, afficher la structure principale
   return (
+    // min-h-screen sur l'élément le plus haut pour la couleur de fond
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
+      
       {/* Desktop Layout */}
-      <div className="hidden lg:flex min-h-screen">
+      {/* CORRECTION: Utiliser h-screen pour forcer la hauteur 100% du viewport,
+         permettant à SideNavigation (h-full) de s'étirer. */}
+      <div className="hidden lg:flex h-screen">
+        
+        {/* La SideNavigation s'étire grâce à h-full dans son composant */}
         <SideNavigation
           activeTab={activeTab}
           onTabChange={setActiveTab}
           notificationCount={newNotificationsCount}
         />
+        
+        {/* Le conteneur de contenu prend le reste de l'espace */}
         <div className="flex-1 overflow-auto">{renderActivePage()}</div>
       </div>
-
-      {/* Mobile Layout */}
+  
+      {/* Mobile Layout (inchangé) */}
       <div className="lg:hidden min-h-screen">
         <div className="mobile-content">{renderActivePage()}</div>
-
+  
         {/* Navigation fixe en bas */}
         <div className="bottom-nav-container">
           <BottomNavigation
