@@ -4,7 +4,7 @@ import { RefreshCw, AlertTriangle, Wifi, WifiOff, Clock } from "lucide-react";
 import { Button } from "../components/button";
 import { Badge } from "../components/badge";
 
-export function DashboardContainer() {
+export function DashboardContainer({ unreadNotificationsCount = 0 }) {
   const {
     mailboxStatus,
     lastActivity,
@@ -113,6 +113,7 @@ export function DashboardContainer() {
         mailboxStatus={mailboxStatus}
         lastActivity={lastActivity}
         onViewDetails={handleViewDetails}
+        unreadNotificationsCount={unreadNotificationsCount}
       />
     </div>
   );

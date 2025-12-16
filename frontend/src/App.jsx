@@ -77,7 +77,7 @@ export default function App() {
   const renderActivePage = () => {
     switch (activeTab) {
       case "dashboard":
-        return <DashboardContainer />;
+        return <DashboardContainer unreadNotificationsCount={newNotificationsCount} />;
       case "notifications":
         return <Notifications />;
       case "messages":
