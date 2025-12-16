@@ -1,9 +1,16 @@
 // backend/tests/eventController_enriched.test.js
-// Tests pour stats enrichies (Phase 1) - Ne touche PAS aux tests historique existants
+// Tests pour stats enrichies (Phase 1) - Avec mock db.js
 
+// ========== MOCK db.js AVANT TOUS LES IMPORTS ==========
+jest.mock('../src/config/db', () => ({
+  connectDB: jest.fn().mockResolvedValue(undefined)
+}));
+
+// ========== IMPORTS APRÈS LE MOCK ==========
 const request = require('supertest');
 const express = require('express');
 const mongoose = require('mongoose');
+const { MongoMemoryServer } = require('mongodb-memory-server');
 const Event = require('../src/models/Event');
 const eventController = require('../src/controllers/eventController');
 
@@ -13,13 +20,46 @@ app.use(express.json());
 app.post('/api/events', eventController.addEvent);
 app.get('/api/events/latest', eventController.getLatestEvent);
 
+// Variables globales pour MongoDB Memory Server
+let mongoServer;
+
 describe('EventController - Stats Enrichies (Phase 1)', () => {
   
+  // ========== SETUP MONGODB MEMORY SERVER ==========
+  beforeAll(async () => {
+    // Déconnecter Mongoose si déjà connecté
+    if (mongoose.connection.readyState !== 0) {
+      await mongoose.disconnect();
+    }
+
+    // Créer instance MongoDB Memory Server
+    mongoServer = await MongoMemoryServer.create();
+    const mongoUri = mongoServer.getUri();
+
+    // Connecter à la DB en mémoire
+    await mongoose.connect(mongoUri);
+
+    console.log('✅ MongoDB Memory Server connecté pour tests');
+  });
+
+  afterAll(async () => {
+    // Fermer connexion Mongoose
+    await mongoose.disconnect();
+    
+    // Arrêter MongoDB Memory Server
+    if (mongoServer) {
+      await mongoServer.stop();
+    }
+
+    console.log('✅ MongoDB Memory Server arrêté');
+  });
+
   beforeEach(async () => {
     // Nettoyer collection avant chaque test
     await Event.deleteMany({});
   });
 
+  // ========== TESTS ==========
   describe('POST /api/events - Stats enrichies', () => {
     
     test('Devrait créer event avec toutes les stats enrichies', async () => {
@@ -112,7 +152,7 @@ describe('EventController - Stats Enrichies (Phase 1)', () => {
         .send(eventData);
 
       expect(res1.status).toBe(201);
-      expect(res1.body).not.toHaveProperty('cached'); // Pas de cached
+      expect(res1.body).not.toHaveProperty('cached');
 
       // Deuxième envoi (même Idempotency-Key)
       const res2 = await request(app)

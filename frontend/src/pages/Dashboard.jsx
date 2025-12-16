@@ -27,7 +27,7 @@ import {
   Calendar,
 } from "lucide-react";
 
-export function Dashboard({ onViewDetails }) {
+export function Dashboard({ onViewDetails, unreadNotificationsCount = 0 }) {
   // MODIFICATION: Remplacement des totaux spécifiques par le total unifié
   const {
     mailboxStatus,
@@ -41,8 +41,12 @@ export function Dashboard({ onViewDetails }) {
     error
   } = useDashboardData();
 
+  // Déterminer le statut effectif basé sur les notifications non lues
+  const effectiveStatus = unreadNotificationsCount > 0 ? "item" : "empty";
+
   const getStatusInfo = () => {
-      switch (mailboxStatus) {
+      // Utilise effectiveStatus basé sur les notifications non lues
+      switch (effectiveStatus) {
         case "empty":
           return {
             icon: CheckCircle,
@@ -75,10 +79,14 @@ export function Dashboard({ onViewDetails }) {
 
   const statusInfo = getStatusInfo();
   const StatusIcon = statusInfo.icon;
-  const hasContent = mailboxStatus !== "empty";
+  const hasContent = effectiveStatus !== "empty";
 
   return (
     <div className="p-6 space-y-6">
+
+      <div className="lg:hidden">                              
+       <DeviceStatus deviceID="esp32-mailbox-001" />        
+     </div>     
 
       {/* Main Content - 2 columns on desktop */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -171,7 +179,7 @@ export function Dashboard({ onViewDetails }) {
                   </p>
                 </motion.div>
 
-                {mailboxStatus !== "empty" && (
+                {effectiveStatus !== "empty" && (
                   <motion.div
                     initial={{ scale: 0, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
@@ -186,8 +194,8 @@ export function Dashboard({ onViewDetails }) {
                       variant="secondary"
                       className="mt-2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white border-0 shadow-lg"
                     >
-                      {/* SIMPLIFICATION DU TEXTE DU BADGE */}
-                      {mailboxStatus === "item" ? `${weeklyTotalItems} élément(s) reçus cette semaine` : "Contenu détecté"}
+                      {/* Affiche le nombre de notifications non lues */}
+                      {`${unreadNotificationsCount} élément(s) non lu(s)`}
                     </Badge>
                   </motion.div>
                 )}
