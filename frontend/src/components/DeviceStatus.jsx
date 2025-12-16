@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Wifi, WifiOff, Activity, Battery, Weight, AlertTriangle } from "lucide-react";
+import { Wifi, WifiOff, Activity, Weight, AlertTriangle } from "lucide-react";
 import { Card } from "./card";
 import { motion } from "framer-motion";
 
@@ -118,7 +118,7 @@ const cardClass = "p-6 bg-white border-0 shadow-lg";
                   <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse" />
                 </motion.div>
                 <div>
-                  <h3 className="font-semibold text-slate-800">ESP32 Connecté</h3>
+                  <h3 className="font-semibold text-slate-800">Boite à lettre Connecté</h3>
                   <p className="text-xs text-slate-600">
                     Dernière activité : {formatLastSeen(ageSeconds)}
                   </p>
@@ -200,7 +200,7 @@ const cardClass = "p-6 bg-white border-0 shadow-lg";
 
         {/* Stats système */}
         {(isConnected || isWarning) && heartbeat && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-slate-200">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-slate-200">
             
             {/* Uptime */}
             <div className="flex items-start gap-2">
@@ -246,41 +246,7 @@ const cardClass = "p-6 bg-white border-0 shadow-lg";
               </div>
             </div>
 
-            {/* Batterie */}
-            <div className="flex items-start gap-2">
-              <div className={`w-10 h-10 rounded-full ${
-                heartbeat.battery_percent 
-                  ? heartbeat.battery_percent > 50 
-                    ? "bg-green-100" 
-                    : heartbeat.battery_percent > 20
-                    ? "bg-orange-100"
-                    : "bg-red-100"
-                  : "bg-slate-100"
-              } flex items-center justify-center flex-shrink-0`}>
-                <Battery className={`w-5 h-5 ${
-                  heartbeat.battery_percent 
-                    ? heartbeat.battery_percent > 50 
-                      ? "text-green-600" 
-                      : heartbeat.battery_percent > 20
-                      ? "text-orange-600"
-                      : "text-red-600"
-                    : "text-slate-400"
-                }`} />
-              </div>
-              <div>
-                <p className="text-xs text-slate-500">Batterie</p>
-                <p className={`text-sm font-semibold ${
-                  heartbeat.battery_percent && heartbeat.battery_percent <= 20 
-                    ? "text-red-600 animate-pulse" 
-                    : "text-slate-800"
-                }`}>
-                  {heartbeat.battery_percent !== null ? `${heartbeat.battery_percent}%` : "N/A"}
-                </p>
-                {heartbeat.battery_percent && heartbeat.battery_percent <= 20 && (
-                  <p className="text-xs text-red-600 font-medium">⚠️ Faible</p>
-                )}
-              </div>
-            </div>
+            
 
             {/* Poids (si disponible, full width) */}
             {heartbeat.weight_g !== null && heartbeat.weight_g !== undefined && (
