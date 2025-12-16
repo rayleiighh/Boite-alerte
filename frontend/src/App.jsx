@@ -57,7 +57,7 @@ export default function App() {
 
   useEffect(() => {
     const checkAuth = () => {
-      const token = localStorage.getItem("authToken");
+      const token = sessionStorage.getItem("authToken");
       if (!token) {
         setIsLoggedIn(false);
         setActiveTab("dashboard");

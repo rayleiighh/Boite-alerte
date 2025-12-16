@@ -34,6 +34,7 @@ export default function Profile() {
   const [visibleField, setVisibleField] = useState(null);
 // valeurs possibles : "current" | "new" | "confirm" | null
 
+ const token = sessionStorage.getItem("authToken");
 
 
   // ==========================
@@ -43,12 +44,6 @@ export default function Profile() {
     const fetchProfile = async () => {
       try {
         const token = sessionStorage.getItem("authToken");
-
-        console.log("[Profile] authToken (localStorage) =", localStorage.getItem("authToken"));
-        console.log("[Profile] authToken (sessionStorage) =", sessionStorage.getItem("authToken"));
-
-
-        console.log("[Profile] Authorization header =", `Bearer ${token}`);
 
         const res = await axios.get("http://localhost:5001/system/profile", {
           headers: {
@@ -88,7 +83,9 @@ export default function Profile() {
       }
     };
 
+    if (token) {
     fetchProfile();
+  }
     fetchEmails();
   }, []);
 
@@ -134,7 +131,7 @@ export default function Profile() {
 const handleChangePassword = async () => {
   if (!validatePasswordForm()) return;
 
-  const token = localStorage.getItem("authToken");
+  const token = sessionStorage.getItem("authToken");
   if (!token) {
     setPwdError("Session invalide, veuillez vous reconnecter");
     return;
@@ -171,29 +168,23 @@ const handleChangePassword = async () => {
     setNewPassword("");
     setConfirmPassword("");
 
-  } catch (err) {
-    if (err.response?.status === 401) {
-      const msg = err.response?.data?.message || "";
+    } catch (err) {
+      if (err.response?.status === 401) {
+        setPwdError(
+          "Votre session a expiré. Veuillez vous reconnecter pour modifier votre mot de passe."
+        );
 
-      if (
-        msg.toLowerCase().includes("session") ||
-        msg.toLowerCase().includes("token")
-      ) {
-        localStorage.removeItem("authToken");
-        window.location.reload();
+        sessionStorage.removeItem("authToken"); // nettoyage propre
         return;
       }
 
-      setPwdError(msg || "Mot de passe actuel incorrect");
-      return;
+      setPwdError(
+        err.response?.data?.message || "Erreur lors du changement de mot de passe"
+      );
+    } finally {
+      setIsSubmitting(false);
     }
 
-    setPwdError(
-      err.response?.data?.message || "Erreur lors du changement de mot de passe"
-    );
-  } finally {
-    setIsSubmitting(false);     // ⬅️ TOUJOURS ici
-  }
 };
 
 
