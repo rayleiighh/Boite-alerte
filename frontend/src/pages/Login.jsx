@@ -10,7 +10,7 @@ export default function Login({ onLoginSuccess }) {
   const [loading, setLoading] = useState(false);
 
   const [showPassword, setShowPassword] = useState(false);
-
+  const VITE_API_URL = import.meta.env.VITE_API_URL || "http://localhost:5001";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -18,7 +18,7 @@ export default function Login({ onLoginSuccess }) {
     setLoading(true);
 
     try {
-      const res = await axios.post("http://localhost:5001/auth/login", {
+      const res = await axios.post(`${VITE_API_URL}/auth/login`, {
         username,
         password,
       });

@@ -35,7 +35,7 @@ export default function Profile() {
 // valeurs possibles : "current" | "new" | "confirm" | null
 
  const token = sessionStorage.getItem("authToken");
-
+ const VITE_API_URL = import.meta.env.VITE_API_URL || "http://localhost:5001";
 
   // ==========================
   // 2️⃣ CHARGER LES DONNÉES DU BACKEND
@@ -45,7 +45,7 @@ export default function Profile() {
       try {
         const token = sessionStorage.getItem("authToken");
 
-        const res = await axios.get("http://localhost:5001/system/profile", {
+        const res = await axios.get(`${VITE_API_URL}/system/profile`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "X-API-Key": import.meta.env.VITE_API_KEY,
