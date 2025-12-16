@@ -18,7 +18,10 @@ const notificationRoutes = require("./routes/notificationRoutes");
 const displayRoutes = require("./routes/displayRoutes");
 const heartbeatRoutes = require("./routes/heartbeatRoutes"); // ✅ NOUVEAU (Branche developp)
 const userRoutes = require("./routes/userRoutes"); // ✅ AJOUT (Branche feature)
+const authRoutes = require("./routes/authRoutes");
 const { WebSocketServer } = require("ws");
+const systemRoutes = require("./routes/systemRoutes");
+
 
 const app = express();
 
@@ -63,9 +66,16 @@ const authMiddleware = (req, res, next) => {
 
   next();
 };
+// AUTH PUBLIQUE (LOGIN)
+app.use("/auth", authRoutes);
 
-// Appliquer auth sur /api (mais pas sur / et /health)
-app.use("/api", authMiddleware);
+app.use("/system", systemRoutes);
+
+
+// 🔐 API key UNIQUEMENT pour l’ESP32
+app.use("/api/events", authMiddleware);
+app.use("/api/heartbeat", authMiddleware);
+
 
 // ========== CONNEXION DB ==========
 connectDB();
@@ -140,25 +150,10 @@ const server = app.listen(PORT, "0.0.0.0", () => {
 const wss = new WebSocketServer({ server, path: "/ws" });
 
 wss.on("connection", (ws) => {
-  console.log("🔌 Client WebSocket connecté");
-  
-  // Message de bienvenue
-  ws.send(
-    JSON.stringify({
-      id: Date.now(),
-      type: "mail",
-      title: "Bienvenue 👋",
-      description: "Connexion WebSocket établie avec succès",
-      time: new Date().toLocaleTimeString("fr-FR", { 
-        hour: "2-digit", 
-        minute: "2-digit" 
-      }),
-      isNew: true,
-    })
-  );
+  // Connexion silencieuse
 
   ws.on("close", () => {
-    console.log("🔌 Client WebSocket déconnecté");
+    // Déconnexion silencieuse
   });
 
   ws.on("error", (error) => {

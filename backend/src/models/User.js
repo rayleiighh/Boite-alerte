@@ -4,7 +4,7 @@ const userSchema = new mongoose.Schema(
   {
     email: { 
       type: String, 
-      required: true, 
+      required: false, 
       unique: true,
       lowercase: true,
       trim: true
@@ -16,7 +16,7 @@ const userSchema = new mongoose.Schema(
     deviceID: { 
       type: String, 
       default: "ESP32-001" 
-    } // Lien avec l'appareil (optionnel)
+    }, // Lien avec l'appareil (optionnel)
   },
   { timestamps: true }
 );
