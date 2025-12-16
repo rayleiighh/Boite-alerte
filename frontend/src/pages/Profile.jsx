@@ -97,15 +97,6 @@ export default function Profile() {
     return `${d}j ${h}h ${m}min`;
   }
 
-  // Si pas encore chargé → éviter crash
-  if (!adminInfo || !systemStatus) {
-    return (
-      <div className="w-full min-h-full p-6 text-center text-slate-600">
-        Chargement du profil...
-      </div>
-    );
-  }
-
   const validatePasswordForm = () => {
   setPwdError("");
   setPwdSuccess("");
@@ -231,12 +222,12 @@ const handleChangePassword = async () => {
 
             <div className="flex justify-between">
               <span className="text-slate-500">Nom d’utilisateur</span>
-              <span className="text-slate-800 font-medium">{adminInfo.username}</span>
+              <span className="text-slate-800 font-medium">{adminInfo ? adminInfo.username : "Connexion requise"}</span>
             </div>
 
             <div className="flex justify-between">
               <span className="text-slate-500">Rôle</span>
-              <span className="text-slate-800 font-medium">{adminInfo.role}</span>
+              <span className="text-slate-800 font-medium">{adminInfo ? adminInfo.role : "—"}</span>
             </div>
 
             <div className="flex justify-between items-start">
@@ -260,24 +251,29 @@ const handleChangePassword = async () => {
 
             <div className="flex justify-between">
               <span className="text-slate-500">Dernière connexion</span>
-              <span className="text-slate-800 font-medium">{adminInfo.lastLogin}</span>
+              <span className="text-slate-800 font-medium">{adminInfo ? adminInfo.lastLogin : "Non disponible"}</span>
             </div>
 
             <div className="flex justify-between">
               <span className="text-slate-500">Statut</span>
               <span className="flex items-center gap-1">
-                {adminInfo.status === "actif" ? (
-                  <>
-                    <CheckCircle className="w-4 h-4 text-emerald-500" />
-                    <span className="text-emerald-600 font-medium">Actif</span>
-                  </>
+                {adminInfo ? (
+                  adminInfo.status === "actif" ? (
+                    <>
+                      <CheckCircle className="w-4 h-4 text-emerald-500" />
+                      <span className="text-emerald-600 font-medium">Actif</span>
+                    </>
+                  ) : (
+                    <>
+                      <XCircle className="w-4 h-4 text-red-500" />
+                      <span className="text-red-600 font-medium">Inactif</span>
+                    </>
+                  )
                 ) : (
-                  <>
-                    <XCircle className="w-4 h-4 text-red-500" />
-                    <span className="text-red-600 font-medium">Inactif</span>
-                  </>
+                  <span className="text-slate-400 italic">Non disponible</span>
                 )}
               </span>
+
             </div>
 
           </div>
@@ -300,23 +296,29 @@ const handleChangePassword = async () => {
             <div className="flex justify-between">
               <span className="text-slate-500">Backend</span>
               <span className="flex items-center gap-1">
-                {systemStatus.backend === "ok" ? (
-                  <>
-                    <CheckCircle className="w-4 h-4 text-emerald-500" />
-                    <span className="text-emerald-600 font-medium">En ligne</span>
-                  </>
+                {systemStatus ? (
+                  systemStatus.backend === "ok" ? (
+                    <>
+                      <CheckCircle className="w-4 h-4 text-emerald-500" />
+                      <span className="text-emerald-600 font-medium">En ligne</span>
+                    </>
+                  ) : (
+                    <>
+                      <XCircle className="w-4 h-4 text-red-500" />
+                      <span className="text-red-600 font-medium">Hors ligne</span>
+                    </>
+                  )
                 ) : (
-                  <>
-                    <XCircle className="w-4 h-4 text-red-500" />
-                    <span className="text-red-600 font-medium">Hors ligne</span>
-                  </>
+                  <span className="text-slate-400 italic">Non disponible</span>
                 )}
               </span>
+
             </div>
             <div className="flex justify-between">
               <span className="text-slate-500">MongoDB</span>
               <span className="flex items-center gap-1">
-                {systemStatus.db === "ok" ? (
+              {systemStatus ? (
+                systemStatus.db === "ok" ? (
                   <>
                     <CheckCircle className="w-4 h-4 text-emerald-500" />
                     <span className="text-emerald-600 font-medium">Connecté</span>
@@ -326,13 +328,16 @@ const handleChangePassword = async () => {
                     <XCircle className="w-4 h-4 text-red-500" />
                     <span className="text-red-600 font-medium">Erreur</span>
                   </>
-                )}
-              </span>
+                )
+              ) : (
+                <span className="text-slate-400 italic">Non disponible</span>
+              )}
+            </span>
             </div>
 
             <div className="flex justify-between">
               <span className="text-slate-500">Uptime serveur</span>
-              <span className="text-slate-800 font-medium">{systemStatus.uptime}</span>
+              <span className="text-slate-800 font-medium">{systemStatus ? systemStatus.uptime : "—"}</span>
             </div>
 
           </div>
@@ -360,9 +365,10 @@ const handleChangePassword = async () => {
             <div className="flex justify-between">
               <span className="text-slate-500">Dernière modification du mot de passe</span>
               <span className="text-slate-800 font-medium">
-                {adminInfo.lastPasswordChange
-                  ? new Date(adminInfo.lastPasswordChange).toLocaleString("fr-FR")
-                  : "Jamais modifié"}
+            {adminInfo && adminInfo.lastPasswordChange
+              ? new Date(adminInfo.lastPasswordChange).toLocaleString("fr-FR")
+              : "Non disponible"}
+
               </span>
             </div>
           </div>
