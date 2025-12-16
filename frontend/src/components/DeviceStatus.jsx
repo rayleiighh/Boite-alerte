@@ -118,7 +118,7 @@ const cardClass = "p-6 bg-white border-0 shadow-lg";
                   <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse" />
                 </motion.div>
                 <div>
-                  <h3 className="font-semibold text-slate-800">ESP32 Connecté</h3>
+                  <h3 className="font-semibold text-slate-800">Boite à lettre Connecté</h3>
                   <p className="text-xs text-slate-600">
                     Dernière activité : {formatLastSeen(ageSeconds)}
                   </p>
