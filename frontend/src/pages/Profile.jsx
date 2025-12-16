@@ -74,7 +74,7 @@ export default function Profile() {
 
     const fetchEmails = async () => {
       try {
-        const res = await axios.get("http://localhost:5001/api/users/notified-emails", {
+        const res = await axios.get(`${VITE_API_URL}/api/users/notified-emails`, {
           headers: { "X-API-Key": import.meta.env.VITE_API_KEY }
         });
         setNotificationEmails(res.data);
@@ -134,7 +134,7 @@ const handleChangePassword = async () => {
     setPwdSuccess("");
 
     await axios.post(
-      "http://localhost:5001/auth/change-password",
+      `${VITE_API_URL}/auth/change-password`,
       {
         currentPassword,
         newPassword,
