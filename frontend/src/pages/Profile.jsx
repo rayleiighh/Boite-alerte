@@ -42,7 +42,13 @@ export default function Profile() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const token = localStorage.getItem("authToken");
+        const token = sessionStorage.getItem("authToken");
+
+        console.log("[Profile] authToken (localStorage) =", localStorage.getItem("authToken"));
+        console.log("[Profile] authToken (sessionStorage) =", sessionStorage.getItem("authToken"));
+
+
+        console.log("[Profile] Authorization header =", `Bearer ${token}`);
 
         const res = await axios.get("http://localhost:5001/system/profile", {
           headers: {
