@@ -80,6 +80,10 @@ export function Dashboard({ onViewDetails }) {
   return (
     <div className="p-6 space-y-6">
 
+      <div className="lg:hidden">                              
+       <DeviceStatus deviceID="esp32-mailbox-001" />        
+     </div>     
+
       {/* Main Content - 2 columns on desktop */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column - Status Card */}
