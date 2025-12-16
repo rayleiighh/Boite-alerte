@@ -140,25 +140,10 @@ const server = app.listen(PORT, "0.0.0.0", () => {
 const wss = new WebSocketServer({ server, path: "/ws" });
 
 wss.on("connection", (ws) => {
-  console.log("🔌 Client WebSocket connecté");
-  
-  // Message de bienvenue
-  ws.send(
-    JSON.stringify({
-      id: Date.now(),
-      type: "mail",
-      title: "Bienvenue 👋",
-      description: "Connexion WebSocket établie avec succès",
-      time: new Date().toLocaleTimeString("fr-FR", { 
-        hour: "2-digit", 
-        minute: "2-digit" 
-      }),
-      isNew: true,
-    })
-  );
+  // Connexion silencieuse
 
   ws.on("close", () => {
-    console.log("🔌 Client WebSocket déconnecté");
+    // Déconnexion silencieuse
   });
 
   ws.on("error", (error) => {
