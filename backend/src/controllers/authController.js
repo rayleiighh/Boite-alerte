@@ -82,7 +82,7 @@ exports.changePassword = async (req, res) => {
     // Vérification ancien mot de passe
     const isValid = await argon2.verify(user.password, currentPassword);
     if (!isValid) {
-      return res.status(401).json({ message: "Mot de passe actuel incorrect" });
+      return res.status(400).json({ message: "Mot de passe actuel incorrect" });
     }
 
     // Hash nouveau mot de passe
